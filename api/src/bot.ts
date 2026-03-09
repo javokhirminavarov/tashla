@@ -50,9 +50,12 @@ export async function startBot(): Promise<void> {
     try {
       await bot.api.deleteWebhook({ drop_pending_updates: true });
 
-      const waitSec = Math.min(10 * attempt, 60);
-      console.log(`⏳ Attempt ${attempt}/${MAX_RETRIES}: waiting ${waitSec}s for previous session to expire...`);
-      await new Promise((r) => setTimeout(r, waitSec * 1000));
+      // Only wait on retries, not on first attempt
+      if (attempt > 1) {
+        const waitSec = Math.min(10 * attempt, 60);
+        console.log(`⏳ Attempt ${attempt}/${MAX_RETRIES}: waiting ${waitSec}s for previous session to expire...`);
+        await new Promise((r) => setTimeout(r, waitSec * 1000));
+      }
 
       await bot.start({
         drop_pending_updates: true,

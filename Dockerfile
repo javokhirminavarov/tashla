@@ -19,6 +19,5 @@ RUN npm ci --omit=dev
 COPY --from=api-build /app/api/dist ./dist
 COPY --from=webapp-build /app/webapp/dist ./public
 ENV WEBAPP_DIR=/app/public
-ENV PORT=3000
 EXPOSE 3000
-CMD ["sh", "-c", "node dist/migrate.js && node dist/index.js"]
+CMD ["node", "dist/index.js"]
