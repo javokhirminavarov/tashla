@@ -95,8 +95,24 @@ export async function startBot(): Promise<void> {
     }
 
     const webhookUrl = `https://${domain}${getWebhookPath()}`;
-    await bot.api.setWebhook(webhookUrl, { drop_pending_updates: true });
-    console.log(`🤖 TASHLA bot webhook set to ${webhookUrl}`);
+
+    // Retry setWebhook a few times — during Railway zero-downtime deploys,
+    // the old instance may briefly conflict with the new one
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await bot.api.setWebhook(webhookUrl, { drop_pending_updates: true });
+        console.log(`🤖 TASHLA bot webhook set to ${webhookUrl}`);
+        return;
+      } catch (err: unknown) {
+        const is409 = err instanceof Error && err.message.includes("409");
+        if (is409 && attempt < 3) {
+          console.log(`⚠️ setWebhook 409 conflict, retrying in ${attempt * 2}s...`);
+          await new Promise((r) => setTimeout(r, attempt * 2000));
+          continue;
+        }
+        throw err;
+      }
+    }
   }
 }
 
