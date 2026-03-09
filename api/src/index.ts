@@ -11,7 +11,7 @@ import statRoutes from "./routes/stats.js";
 import quitPlanRoutes from "./routes/quit-plan.js";
 import groupRoutes from "./routes/groups.js";
 import { startCronJobs } from "./cron.js";
-import { startBot, stopBot } from "./bot.js";
+import { startBot, stopBot, getBot, getBotWebhookCallback, getWebhookPath } from "./bot.js";
 
 // Global error handlers — ensure crashes produce visible logs
 process.on("unhandledRejection", (reason) => {
@@ -44,6 +44,15 @@ app.use("/api/health", healthRoutes);
 app.use("/api/stats", statRoutes);
 app.use("/api/quit-plan", quitPlanRoutes);
 app.use("/api/groups", groupRoutes);
+
+// Bot webhook route (production only — must be before static/SPA fallback)
+if (process.env.DEV_MODE !== "true") {
+  const webhookCb = getBotWebhookCallback();
+  if (webhookCb) {
+    app.post(getWebhookPath(), webhookCb);
+    console.log(`Bot webhook route registered at ${getWebhookPath()}`);
+  }
+}
 
 // Serve webapp static files
 app.use(express.static(WEBAPP_DIR));
