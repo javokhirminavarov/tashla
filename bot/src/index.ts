@@ -36,26 +36,18 @@ const stopBot = () => {
 process.once("SIGTERM", stopBot);
 process.once("SIGINT", stopBot);
 
-async function startWithRetry() {
+async function start() {
   // Clear any hanging getUpdates from a previous instance
   await bot.api.deleteWebhook({ drop_pending_updates: true });
 
-  try {
-    await bot.start({
-      drop_pending_updates: true,
-      onStart: () => console.log("🤖 TASHLA bot is running"),
-    });
-  } catch (err: unknown) {
-    const isConflict =
-      err instanceof Error && err.message.includes("409");
-    if (isConflict) {
-      console.log("⏳ Conflict detected, retrying in 5s...");
-      await new Promise((r) => setTimeout(r, 5000));
-      await startWithRetry();
-    } else {
-      throw err;
-    }
-  }
+  // Wait for old polling session to expire before starting ours
+  console.log("⏳ Waiting 10s for previous polling session to expire...");
+  await new Promise((r) => setTimeout(r, 10000));
+
+  await bot.start({
+    drop_pending_updates: true,
+    onStart: () => console.log("🤖 TASHLA bot is running"),
+  });
 }
 
-startWithRetry();
+start();
