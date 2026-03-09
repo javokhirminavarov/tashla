@@ -33,7 +33,7 @@ router.post("/", authMiddleware, async (req, res) => {
     // Auto-join creator
     await query(
       `INSERT INTO group_members (group_id, user_id, hide_alkogol)
-       VALUES ($1, $2, 1)`,
+       VALUES ($1, $2, TRUE)`,
       [group.id, req.user.id]
     );
 
@@ -201,7 +201,7 @@ router.post("/join", authMiddleware, async (req, res) => {
     }
 
     await query(
-      `INSERT INTO group_members (group_id, user_id, hide_alkogol) VALUES ($1, $2, 1)`,
+      `INSERT INTO group_members (group_id, user_id, hide_alkogol) VALUES ($1, $2, TRUE)`,
       [groupId, req.user.id]
     );
 

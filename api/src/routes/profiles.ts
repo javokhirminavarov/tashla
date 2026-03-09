@@ -38,7 +38,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
     const result = await query(
       `INSERT INTO habit_profiles (user_id, habit_type, daily_baseline, daily_limit, cost_per_unit, target_quit_date, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, 1)
+       VALUES ($1, $2, $3, $4, $5, $6, TRUE)
        ON CONFLICT (user_id, habit_type) DO UPDATE SET
          daily_baseline = EXCLUDED.daily_baseline,
          daily_limit = EXCLUDED.daily_limit,

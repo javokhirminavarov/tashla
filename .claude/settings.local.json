@@ -32,7 +32,9 @@
       "Bash(wc:*)",
       "Bash(npm run:*)",
       "Bash(npm install:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(rm:*)",
+      "Bash(node:*)"
     ]
   }
 }

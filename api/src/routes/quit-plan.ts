@@ -85,7 +85,7 @@ router.post("/", authMiddleware, async (req, res) => {
     // Upsert plan
     const planResult = await query(
       `INSERT INTO quit_plans (user_id, habit_type, start_limit, target_limit, reduction_percent, step_duration_days, current_step, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, 1, 1)
+       VALUES ($1, $2, $3, $4, $5, $6, 1, TRUE)
        ON CONFLICT (user_id, habit_type) DO UPDATE SET
          start_limit = EXCLUDED.start_limit,
          target_limit = EXCLUDED.target_limit,
