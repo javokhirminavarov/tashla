@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { tg } from "./lib/telegram";
@@ -11,10 +11,11 @@ import Health from "./pages/Health";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import GroupDetail from "./pages/GroupDetail";
+import type { HabitProfile } from "./lib/types";
 
 export default function App() {
   const { t } = useTranslation();
-  const { user, profiles, loading, error } = useAuth();
+  const { user, profiles, loading, error, refreshProfiles, setProfiles } = useAuth();
 
   useEffect(() => {
     tg.ready();
@@ -24,6 +25,13 @@ export default function App() {
       tg.setBackgroundColor("#122017");
     }
   }, []);
+
+  const handleOnboardingComplete = useCallback(
+    (newProfiles: HabitProfile[]) => {
+      setProfiles(newProfiles);
+    },
+    [setProfiles]
+  );
 
   if (loading) {
     return (
@@ -67,15 +75,27 @@ export default function App() {
     <HashRouter>
       <Routes>
         {needsOnboarding ? (
-          <Route path="*" element={<Onboarding />} />
+          <Route
+            path="*"
+            element={<Onboarding onComplete={handleOnboardingComplete} />}
+          />
         ) : (
           <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/stats" element={<Stats />} />
-            <Route path="/health" element={<Health />} />
+            <Route path="/" element={<Dashboard profiles={profiles} />} />
+            <Route path="/stats" element={<Stats profiles={profiles} />} />
+            <Route path="/health" element={<Health profiles={profiles} />} />
             <Route path="/community" element={<Community />} />
             <Route path="/group/:id" element={<GroupDetail />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/profile"
+              element={
+                <Profile
+                  user={user!}
+                  profiles={profiles}
+                  refreshProfiles={refreshProfiles}
+                />
+              }
+            />
           </Route>
         )}
       </Routes>
