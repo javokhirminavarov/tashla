@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve dist -s -l $PORT"
   },
   "dependencies": {
     "i18next": "^25.8.13",
@@ -14,7 +15,8 @@
     "react-dom": "^18.2.0",
     "react-i18next": "^16.5.4",
     "react-router-dom": "^6.22.0",
-    "recharts": "^2.12.0"
+    "recharts": "^2.12.0",
+    "serve": "^14.2.6"
   },
   "devDependencies": {
     "@types/react": "^18.2.48",

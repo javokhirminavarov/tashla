@@ -30,7 +30,8 @@
       "Bash(cd D:/projects/tashla/api && npx tsx src/index.ts 2>&1)",
       "Bash(sleep 3 && curl -s http://localhost:3000/api/ping 2>&1)",
       "Bash(wc:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm install:*)"
     ]
   }
 }

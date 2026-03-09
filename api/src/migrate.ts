@@ -81,7 +81,10 @@ async function migrate() {
       sql = sql.replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, "SERIAL PRIMARY KEY");
       sql = sql.replace(/datetime\('now'\)/g, "NOW()");
       sql = sql.replace(/\bTEXT\b(?!\s+DEFAULT)/g, "TEXT");
-      sql = sql.replace(/\bINTEGER DEFAULT 1\b/g, "BOOLEAN DEFAULT TRUE");
+      sql = sql.replace(
+        /\b(is_active|notifications_enabled|weekly_summary|hide_alkogol)\s+INTEGER\s+DEFAULT\s+([01])\b/g,
+        (_, col, val) => `${col} BOOLEAN DEFAULT ${val === '1' ? 'TRUE' : 'FALSE'}`
+      );
       sql = sql.replace(/\bREAL\b/g, "REAL");
 
       console.log(`  applying: ${file}`);
