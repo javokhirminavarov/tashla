@@ -1,22 +1,11 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { HashRouter, Routes, Route } from "react-router-dom";
 import { tg } from "./lib/telegram";
 import { useAuth } from "./hooks/useAuth";
-import Layout from "./components/Layout";
-import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
-import Stats from "./pages/Stats";
-import Health from "./pages/Health";
-import Profile from "./pages/Profile";
-import Community from "./pages/Community";
-import GroupDetail from "./pages/GroupDetail";
-import type { HabitProfile } from "./lib/types";
 
 export default function App() {
   const { t } = useTranslation();
-  const { user, profiles, loading, error, refreshProfiles, setProfiles } =
-    useAuth();
+  const { user, profiles, loading, error } = useAuth();
 
   useEffect(() => {
     tg.ready();
@@ -29,66 +18,92 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#122017] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-pulse space-y-4 w-48">
-            <div className="h-10 bg-white/10 rounded-xl mx-auto w-10" />
-            <div className="h-4 bg-white/10 rounded-lg w-3/4 mx-auto" />
-            <p className="text-[#5C716A] text-xs mt-4">{t("common.loading")}</p>
-          </div>
-        </div>
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#122017",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p style={{ color: "#5C716A", fontSize: "14px" }}>
+          {t("common.loading")}
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#122017] flex items-center justify-center p-6">
-        <div className="text-center">
-          <div className="text-4xl mb-3">⚠️</div>
-          <p className="text-[#EF4444] mb-2 font-medium">{t("common.error")}</p>
-          <p className="text-sm text-[#94A3A1] mb-4">{error}</p>
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#122017",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: "48px", marginBottom: "12px" }}>⚠️</p>
+          <p style={{ color: "#EF4444", fontWeight: 600, marginBottom: "8px" }}>
+            {t("common.error")}
+          </p>
+          <p style={{ color: "#94A3A1", fontSize: "13px", marginBottom: "16px" }}>
+            {error}
+          </p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 min-h-[44px] rounded-full bg-[#1fc762] text-[#0d1a12] text-sm font-semibold active:scale-[0.97] transition-transform"
+            style={{
+              background: "#1fc762",
+              color: "#0d1a12",
+              border: "none",
+              borderRadius: "9999px",
+              padding: "10px 24px",
+              fontWeight: 600,
+              fontSize: "14px",
+            }}
           >
-            {t("common.retry") || "Qayta urinish"}
+            Qayta urinish
           </button>
         </div>
       </div>
     );
   }
 
-  // No profiles → onboarding
-  if (!profiles || profiles.length === 0) {
-    return (
-      <Onboarding
-        onComplete={(newProfiles: HabitProfile[]) => setProfiles(newProfiles)}
-      />
-    );
-  }
+  // DEBUG: temporary screen to diagnose blank screen issue
+  const debugInfo = {
+    hasUser: !!user,
+    userId: user?.id,
+    userName: user?.first_name,
+    profileCount: profiles?.length ?? "null",
+    profileTypes: profiles?.map((p) => p.habit_type).join(", ") || "none",
+    apiUrl: import.meta.env.VITE_API_URL || "NOT SET",
+    initData: tg.initData ? tg.initData.substring(0, 30) + "..." : "empty",
+  };
 
   return (
-    <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard profiles={profiles} />} />
-          <Route path="/stats" element={<Stats profiles={profiles} />} />
-          <Route path="/health" element={<Health profiles={profiles} />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/community/:id" element={<GroupDetail />} />
-          <Route
-            path="/profile"
-            element={
-              <Profile
-                user={user!}
-                profiles={profiles}
-                refreshProfiles={refreshProfiles}
-              />
-            }
-          />
-        </Route>
-      </Routes>
-    </HashRouter>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#122017",
+        color: "#F1F5F2",
+        padding: "40px 20px",
+        fontFamily: "monospace",
+        fontSize: "13px",
+      }}
+    >
+      <h1 style={{ color: "#1fc762", fontSize: "20px", marginBottom: "16px" }}>
+        TASHLA Debug
+      </h1>
+      <pre style={{ whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
+        {JSON.stringify(debugInfo, null, 2)}
+      </pre>
+      <p style={{ color: "#94A3A1", marginTop: "16px", fontSize: "12px" }}>
+        If you see this, auth succeeded and React works fine.
+      </p>
+    </div>
   );
 }
