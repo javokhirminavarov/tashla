@@ -37,17 +37,32 @@ process.once("SIGTERM", stopBot);
 process.once("SIGINT", stopBot);
 
 async function start() {
-  // Clear any hanging getUpdates from a previous instance
-  await bot.api.deleteWebhook({ drop_pending_updates: true });
+  const MAX_RETRIES = 10;
 
-  // Wait for old polling session to expire before starting ours
-  console.log("⏳ Waiting 10s for previous polling session to expire...");
-  await new Promise((r) => setTimeout(r, 10000));
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      // Clear any hanging getUpdates from a previous instance
+      await bot.api.deleteWebhook({ drop_pending_updates: true });
 
-  await bot.start({
-    drop_pending_updates: true,
-    onStart: () => console.log("🤖 TASHLA bot is running"),
-  });
+      // Wait for old polling session to expire (longer on retries)
+      const waitSec = Math.min(10 * attempt, 60);
+      console.log(`⏳ Attempt ${attempt}/${MAX_RETRIES}: waiting ${waitSec}s for previous session to expire...`);
+      await new Promise((r) => setTimeout(r, waitSec * 1000));
+
+      await bot.start({
+        drop_pending_updates: true,
+        onStart: () => console.log("🤖 TASHLA bot is running"),
+      });
+      return; // started successfully
+    } catch (err: unknown) {
+      const is409 = err instanceof Error && err.message.includes("409");
+      if (is409 && attempt < MAX_RETRIES) {
+        console.log(`⚠️ Conflict (409), retrying...`);
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 start();
