@@ -48,7 +48,12 @@ app.use("/api/stats", statRoutes);
 app.use("/api/quit-plan", quitPlanRoutes);
 app.use("/api/groups", groupRoutes);
 
-const server = app.listen(PORT, () => {
+// Root health check for Railway
+app.get("/", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`API running on http://localhost:${PORT}`);
   startCronJobs();
   startBot().catch((err) => console.error("Bot startup failed:", err));
