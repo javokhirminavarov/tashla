@@ -20,7 +20,12 @@ app.use(
       // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
       // Allow the configured webapp URL and common local dev ports
-      const allowed = [WEBAPP_URL, "http://localhost:5173", "http://localhost:5174"];
+      const allowed = [
+        WEBAPP_URL,
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://webapp-production-4b53.up.railway.app",
+      ];
       if (allowed.includes(origin)) return callback(null, true);
       callback(new Error("Not allowed by CORS"));
     },
