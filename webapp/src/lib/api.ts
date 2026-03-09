@@ -14,7 +14,14 @@ import type {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+if (!API_URL) {
+  console.error("[TASHLA] VITE_API_URL is not set! API calls will fail.");
+}
+
 async function apiCall<T>(path: string, options?: RequestInit): Promise<T> {
+  if (!API_URL) {
+    throw new Error("API URL not configured (VITE_API_URL missing)");
+  }
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
