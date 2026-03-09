@@ -3,14 +3,13 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 FROM node:18-alpine
 WORKDIR /app
-RUN npm install -g serve@14
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 ENV PORT=3000
 EXPOSE 3000
-CMD ["sh", "-c", "serve dist -s -p $PORT"]
+CMD ["sh", "-c", "node dist/migrate.js && node dist/index.js"]

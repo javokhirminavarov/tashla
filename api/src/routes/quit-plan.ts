@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { query } from "../db.js";
+import { query, isSQLite } from "../db.js";
 import { authMiddleware } from "../auth.js";
 
 const router = Router();
@@ -93,7 +93,7 @@ router.post("/", authMiddleware, async (req, res) => {
          step_duration_days = EXCLUDED.step_duration_days,
          current_step = 1,
          is_active = 1,
-         started_at = datetime('now')
+         started_at = ${isSQLite ? "datetime('now')" : "NOW()"}
        RETURNING id`,
       [req.user.id, habit_type, start_limit, targetLim, reductionPct, stepDays]
     );
