@@ -1,4 +1,6 @@
 import "dotenv/config";
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.js";
@@ -13,25 +15,10 @@ import { startBot, stopBot } from "./bot.js";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000", 10);
-const WEBAPP_URL = process.env.WEBAPP_URL || "http://localhost:5173";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const WEBAPP_DIR = process.env.WEBAPP_DIR || path.join(__dirname, "../../public");
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, etc.)
-      if (!origin) return callback(null, true);
-      // Allow the configured webapp URL and common local dev ports
-      const allowed = [
-        WEBAPP_URL,
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "https://webapp-production-4b53.up.railway.app",
-      ];
-      if (allowed.includes(origin)) return callback(null, true);
-      callback(new Error("Not allowed by CORS"));
-    },
-  })
-);
+app.use(cors({ origin: true }));
 app.use(express.json());
 
 // Health check
@@ -39,7 +26,7 @@ app.get("/api/ping", (_req, res) => {
   res.json({ data: "pong" });
 });
 
-// Routes
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profiles", profileRoutes);
 app.use("/api/logs", logRoutes);
@@ -48,13 +35,17 @@ app.use("/api/stats", statRoutes);
 app.use("/api/quit-plan", quitPlanRoutes);
 app.use("/api/groups", groupRoutes);
 
-// Root health check for Railway
-app.get("/", (_req, res) => {
-  res.json({ status: "ok" });
+// Serve webapp static files
+app.use(express.static(WEBAPP_DIR));
+
+// SPA fallback — serve index.html for all non-API routes
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(WEBAPP_DIR, "index.html"));
 });
 
 const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`API running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Serving webapp from ${WEBAPP_DIR}`);
   startCronJobs();
   startBot().catch((err) => console.error("Bot startup failed:", err));
 });
