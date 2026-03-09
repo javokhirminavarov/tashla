@@ -90,12 +90,13 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#122017] flex items-center justify-center">
+      <div className="min-h-screen bg-[#122017] flex flex-col items-center justify-center">
         <div className="animate-pulse space-y-4 w-64">
-          <div className="h-4 bg-white/5 rounded-lg w-3/4 mx-auto" />
-          <div className="h-10 bg-white/5 rounded-xl w-1/2 mx-auto" />
-          <div className="h-3 bg-white/5 rounded-lg w-2/3 mx-auto" />
+          <div className="h-4 bg-white/10 rounded-lg w-3/4 mx-auto" />
+          <div className="h-10 bg-white/10 rounded-xl w-1/2 mx-auto" />
+          <div className="h-3 bg-white/10 rounded-lg w-2/3 mx-auto" />
         </div>
+        <p className="text-[#94A3A1] text-sm mt-6">Yuklanmoqda...</p>
       </div>
     );
   }
