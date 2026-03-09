@@ -1,7 +1,16 @@
 import { useEffect } from "react";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { tg } from "./lib/telegram";
 import { useAuth } from "./hooks/useAuth";
+import Layout from "./components/Layout";
+import Onboarding from "./pages/Onboarding";
+import Dashboard from "./pages/Dashboard";
+import Stats from "./pages/Stats";
+import Health from "./pages/Health";
+import Profile from "./pages/Profile";
+import Community from "./pages/Community";
+import GroupDetail from "./pages/GroupDetail";
 
 export default function App() {
   const { t } = useTranslation();
@@ -18,92 +27,58 @@ export default function App() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#122017",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <p style={{ color: "#5C716A", fontSize: "14px" }}>
-          {t("common.loading")}
-        </p>
+      <div className="min-h-screen bg-[#122017] flex items-center justify-center">
+        <div className="animate-pulse space-y-4 w-64">
+          <div className="h-4 bg-white/5 rounded-lg w-3/4 mx-auto" />
+          <div className="h-10 bg-white/5 rounded-xl w-1/2 mx-auto" />
+          <div className="h-3 bg-white/5 rounded-lg w-2/3 mx-auto" />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#122017",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "24px",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <p style={{ fontSize: "48px", marginBottom: "12px" }}>⚠️</p>
-          <p style={{ color: "#EF4444", fontWeight: 600, marginBottom: "8px" }}>
+      <div className="min-h-screen bg-[#122017] flex items-center justify-center px-6">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full mb-4 bg-white/5 flex items-center justify-center mx-auto">
+            <span className="material-symbols-outlined text-[28px] text-[#EF4444]">
+              error
+            </span>
+          </div>
+          <p className="text-[#EF4444] font-semibold text-base mb-2">
             {t("common.error")}
           </p>
-          <p style={{ color: "#94A3A1", fontSize: "13px", marginBottom: "16px" }}>
-            {error}
-          </p>
+          <p className="text-[#94A3A1] text-sm mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            style={{
-              background: "#1fc762",
-              color: "#0d1a12",
-              border: "none",
-              borderRadius: "9999px",
-              padding: "10px 24px",
-              fontWeight: 600,
-              fontSize: "14px",
-            }}
+            className="min-h-[48px] px-6 rounded-2xl bg-[#1fc762] text-[#0d1a12] font-semibold text-sm tracking-wide active:scale-[0.97] active:bg-[#17a34a] transition-all duration-150"
           >
-            Qayta urinish
+            {t("common.retry", "Qayta urinish")}
           </button>
         </div>
       </div>
     );
   }
 
-  // DEBUG: temporary screen to diagnose blank screen issue
-  const debugInfo = {
-    hasUser: !!user,
-    userId: user?.id,
-    userName: user?.first_name,
-    profileCount: profiles?.length ?? "null",
-    profileTypes: profiles?.map((p) => p.habit_type).join(", ") || "none",
-    apiUrl: import.meta.env.VITE_API_URL || "NOT SET",
-    initData: tg.initData ? tg.initData.substring(0, 30) + "..." : "empty",
-  };
+  const needsOnboarding = !profiles || profiles.length === 0;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#122017",
-        color: "#F1F5F2",
-        padding: "40px 20px",
-        fontFamily: "monospace",
-        fontSize: "13px",
-      }}
-    >
-      <h1 style={{ color: "#1fc762", fontSize: "20px", marginBottom: "16px" }}>
-        TASHLA Debug
-      </h1>
-      <pre style={{ whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
-        {JSON.stringify(debugInfo, null, 2)}
-      </pre>
-      <p style={{ color: "#94A3A1", marginTop: "16px", fontSize: "12px" }}>
-        If you see this, auth succeeded and React works fine.
-      </p>
-    </div>
+    <HashRouter>
+      <Routes>
+        {needsOnboarding ? (
+          <Route path="*" element={<Onboarding />} />
+        ) : (
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/stats" element={<Stats />} />
+            <Route path="/health" element={<Health />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/group/:id" element={<GroupDetail />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+        )}
+      </Routes>
+    </HashRouter>
   );
 }
