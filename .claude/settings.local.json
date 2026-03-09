@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(cd /d/projects/tashla/api && npm install 2>&1)",
+      "Bash(cd /d/projects/tashla/bot && npm install 2>&1)",
+      "Bash(cd /d/projects/tashla/api && npm run migrate 2>&1)",
+      "Bash(cd /d/projects/tashla/api && node -e \"\nconst Database = require\\('better-sqlite3'\\);\nconst db = new Database\\('tashla.db'\\);\nconsole.log\\('Tables:', db.prepare\\(\\\\\"SELECT name FROM sqlite_master WHERE type='table'\\\\\"\\).all\\(\\).map\\(r=>r.name\\)\\);\nconsole.log\\('Milestones:', db.prepare\\('SELECT COUNT\\(*\\) as c FROM health_milestones'\\).get\\(\\)\\);\nconsole.log\\('Sample:', db.prepare\\('SELECT * FROM health_milestones LIMIT 2'\\).all\\(\\)\\);\ndb.close\\(\\);\n\" 2>&1)",
+      "Bash(true:*)",
+      "Bash(cd /d/projects/tashla/webapp && npm install 2>&1)",
+      "Bash(cd /d/projects/tashla/webapp && npx tsc --noEmit 2>&1)",
+      "Bash(cd /d/projects/tashla/api && rm -f tashla.db && npm run migrate 2>&1)",
+      "Bash(cd /d/projects/tashla/webapp && npx vite build 2>&1)",
+      "Bash(cd:*)",
+      "Bash(taskkill:*)",
+      "Bash(cd /d/projects/tashla/api && npx tsx src/index.ts 2>&1)",
+      "Bash(cd /d/projects/tashla/webapp && npx vite --host 2>&1)",
+      "Bash(echo:*)",
+      "Bash(cd /d/projects/tashla/webapp && npx vite dev --host 2>&1)",
+      "Bash(head:*)",
+      "Bash(cd D:/projects/tashla/webapp && npx tsc --noEmit 2>&1)",
+      "Bash(tail:*)",
+      "Bash(cd D:/projects/tashla/webapp && npx vite build 2>&1)",
+      "Bash(cd D:/projects/tashla/webapp && npm install i18next react-i18next 2>&1)",
+      "Bash(cd D:/projects/tashla/api && npx tsx src/migrate.ts 2>&1)",
+      "Bash(cd D:/projects/tashla/api && npm install node-cron grammy && npm install -D @types/node-cron 2>&1)",
+      "Bash(cd D:/projects/tashla/api && npx ts-node src/index.ts 2>&1)",
+      "Bash(cd D:/projects/tashla/webapp && npx vite --host 2>&1)",
+      "Bash(sleep 4 && curl -s http://localhost:3000/api/ping 2>&1)",
+      "Bash(cd D:/projects/tashla/api && npx tsx src/index.ts 2>&1)",
+      "Bash(sleep 3 && curl -s http://localhost:3000/api/ping 2>&1)",
+      "Bash(wc:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
