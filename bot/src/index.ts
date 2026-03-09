@@ -28,5 +28,15 @@ bot.api.setChatMenuButton({
   },
 });
 
-bot.start();
-console.log("🤖 TASHLA bot is running");
+// Graceful shutdown — stop polling before Railway kills the process
+const stopBot = () => {
+  console.log("🛑 Stopping bot...");
+  bot.stop();
+};
+process.once("SIGTERM", stopBot);
+process.once("SIGINT", stopBot);
+
+bot.start({
+  drop_pending_updates: true,
+  onStart: () => console.log("🤖 TASHLA bot is running"),
+});
