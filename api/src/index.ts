@@ -9,6 +9,7 @@ import statRoutes from "./routes/stats.js";
 import quitPlanRoutes from "./routes/quit-plan.js";
 import groupRoutes from "./routes/groups.js";
 import { startCronJobs } from "./cron.js";
+import { startBot, stopBot } from "./bot.js";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000", 10);
@@ -47,7 +48,20 @@ app.use("/api/stats", statRoutes);
 app.use("/api/quit-plan", quitPlanRoutes);
 app.use("/api/groups", groupRoutes);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`API running on http://localhost:${PORT}`);
   startCronJobs();
+  startBot().catch((err) => console.error("Bot startup failed:", err));
 });
+
+// Graceful shutdown
+const shutdown = () => {
+  console.log("🛑 Shutting down...");
+  stopBot();
+  server.close(() => {
+    console.log("✅ Server closed");
+    process.exit(0);
+  });
+};
+process.once("SIGTERM", shutdown);
+process.once("SIGINT", shutdown);

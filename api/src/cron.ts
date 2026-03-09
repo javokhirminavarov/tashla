@@ -1,19 +1,9 @@
 import cron from "node-cron";
-import { Bot, InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "grammy";
 import { query, isSQLite } from "./db.js";
+import { getBot } from "./bot.js";
 
-const BOT_TOKEN = process.env.BOT_TOKEN || "";
 const WEBAPP_URL = process.env.WEBAPP_URL || "";
-
-let bot: Bot | null = null;
-
-function getBot(): Bot | null {
-  if (!BOT_TOKEN || BOT_TOKEN === "your_bot_token_from_botfather") return null;
-  if (!bot) {
-    bot = new Bot(BOT_TOKEN);
-  }
-  return bot;
-}
 
 function openAppKeyboard(): InlineKeyboard {
   return new InlineKeyboard().webApp("Ochish / Открыть", WEBAPP_URL);

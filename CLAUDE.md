@@ -4,11 +4,9 @@
 
 TASHLA ("Quit" in Uzbek) is a Telegram Mini App that helps Uzbek users track and quit three habits: sigaret (cigarettes), nos (nasvay), and alkogol (alcohol). The app consists of three parts:
 
-1. **bot/** — Minimal Telegram bot (grammy). Only does `/start` and opens the Mini App.
-2. **api/** — Express REST API. Handles auth, logging, stats, health milestones.
+1. **bot/** — Telegram bot (grammy). `/start` command, opens Mini App, sends push notifications.
+2. **api/** — Express REST API. Auth, logging, stats, health milestones, quit plans, community groups, cron jobs.
 3. **webapp/** — React Mini App (Vite + Tailwind). Opens inside Telegram. All user-facing UI lives here.
-
-Read `PROJECT_PLAN.md` for full feature specs, screen layouts, and database schema.
 
 ---
 
@@ -19,6 +17,8 @@ Read `PROJECT_PLAN.md` for full feature specs, screen layouts, and database sche
 - **API:** Express + raw SQL (no ORM). Dual-driver DB layer: `better-sqlite3` for local dev, `pg` for production
 - **Database:** SQLite locally (`tashla.db`), PostgreSQL on Railway for production
 - **Webapp:** React 18 + Vite + Tailwind CSS + Recharts
+- **i18n:** i18next + react-i18next (uz/ru locales)
+- **Scheduling:** node-cron (notifications, quit plan transitions)
 - **Icons:** Material Symbols Outlined (Google Fonts)
 - **Typography:** Lexend (Google Fonts) — not system font stack
 - **Auth:** Telegram WebApp initData HMAC validation
@@ -30,7 +30,6 @@ Read `PROJECT_PLAN.md` for full feature specs, screen layouts, and database sche
 ```
 tashla/
 ├── CLAUDE.md              # This file
-├── PROJECT_PLAN.md        # Full project plan and specs
 │
 ├── bot/
 │   ├── package.json
@@ -47,14 +46,17 @@ tashla/
 │   │   ├── db.ts          # Dual-driver DB abstraction (SQLite dev / PostgreSQL prod)
 │   │   ├── auth.ts        # Telegram initData validation middleware
 │   │   ├── migrate.ts     # Migration runner
+│   │   ├── cron.ts        # Node-cron jobs: notifications + quit plan step transitions
 │   │   ├── routes/
 │   │   │   ├── auth.ts    # POST /api/auth — validate + upsert user
 │   │   │   ├── profiles.ts # GET/POST/DELETE habit profiles
 │   │   │   ├── logs.ts    # POST log, DELETE last, GET today, GET daily
 │   │   │   ├── health.ts  # GET milestones with unlock status
-│   │   │   └── stats.ts   # GET money saved
+│   │   │   ├── stats.ts   # GET money saved + streak
+│   │   │   ├── groups.ts  # Community groups CRUD + member ops
+│   │   │   └── quit-plan.ts # Quit plan CRUD + step transitions
 │   │   └── migrations/
-│   │       ├── 001_tables.sql     # All 4 tables (SQLite dialect)
+│   │       ├── 001_tables.sql     # Core tables (users, habit_profiles, usage_logs, health_milestones)
 │   │       └── 002_seed.sql       # Health milestones data (22 rows)
 │   └── .env.example       # DATABASE_URL, BOT_TOKEN
 │
@@ -68,18 +70,25 @@ tashla/
 │   ├── index.html
 │   ├── src/
 │   │   ├── main.tsx        # React entry
-│   │   ├── App.tsx         # Router: /, /stats, /health, /profile
+│   │   ├── App.tsx         # Router: /, /stats, /health, /community, /profile, /group/:id
 │   │   ├── lib/
 │   │   │   ├── api.ts      # Fetch wrapper — all API calls
 │   │   │   ├── colors.ts   # Zone-based color utility (green/amber/red interpolation)
 │   │   │   ├── telegram.ts # Telegram WebApp SDK helpers + dev mock
 │   │   │   └── types.ts    # TypeScript interfaces + constant maps
+│   │   ├── i18n/
+│   │   │   ├── index.ts    # i18next setup (auto-detect from Telegram)
+│   │   │   └── locales/
+│   │   │       ├── uz.json # Uzbek strings
+│   │   │       └── ru.json # Russian strings
 │   │   ├── pages/
 │   │   │   ├── Onboarding.tsx
 │   │   │   ├── Dashboard.tsx
 │   │   │   ├── Stats.tsx
 │   │   │   ├── Health.tsx
-│   │   │   └── Profile.tsx
+│   │   │   ├── Profile.tsx
+│   │   │   ├── Community.tsx    # Groups list
+│   │   │   └── GroupDetail.tsx  # Group view + member progress
 │   │   ├── components/
 │   │   │   ├── HabitCard.tsx      # Habit selector pill on dashboard
 │   │   │   ├── ProgressBar.tsx    # Horizontal progress indicator
@@ -88,8 +97,11 @@ tashla/
 │   │   │   ├── WeeklyChart.tsx    # Recharts composite line/area chart
 │   │   │   ├── HealthTimeline.tsx # Vertical milestone timeline (3 states)
 │   │   │   ├── MoneySaved.tsx     # Savings display card
-│   │   │   ├── Navigation.tsx     # Bottom tab bar (3 items)
-│   │   │   └── Layout.tsx         # Page wrapper with nav
+│   │   │   ├── Navigation.tsx     # Bottom tab bar (4 items)
+│   │   │   ├── Layout.tsx         # Page wrapper with nav
+│   │   │   ├── QuitPlanSheet.tsx  # Quit plan display sheet
+│   │   │   ├── CreateGroupSheet.tsx # Group creation modal
+│   │   │   └── JoinGroupSheet.tsx   # Group join modal
 │   │   └── hooks/
 │   │       ├── useAuth.ts         # Auth + user state
 │   │       ├── useLogs.ts         # Logging actions + today's data
@@ -147,9 +159,10 @@ data_check_string is all initData params (except hash) sorted alphabetically, jo
 - Material Symbols Outlined for all icons; filled variant via `.material-symbols-filled` CSS class
 - Lexend font (Google Fonts) — loaded in index.html
 
-### Language
-- All user-facing text is in Uzbek (O'zbek, Latin script)
-- No i18n library needed for MVP — hardcode Uzbek strings
+### Language & i18n
+- Two languages supported: Uzbek (uz) and Russian (ru)
+- i18next + react-i18next for translation; locale files at `webapp/src/i18n/locales/{uz,ru}.json`
+- Auto-detects language from Telegram user settings; manual selector in Profile page
 - Use standard Uzbek Latin: o', g', sh, ch (with apostrophes for o' and g')
 - Common terms:
   - Sigaret = Cigarette
@@ -169,12 +182,21 @@ data_check_string is all initData params (except hash) sorted alphabetically, jo
 
 ## Database Schema
 
-4 tables. See `api/src/migrations/001_tables.sql` for full SQL.
+9 tables. Core schema in `api/src/migrations/001_tables.sql`. Post-MVP additions via subsequent migrations.
 
-**users** — telegram_id, first_name, username, created_at
-**habit_profiles** — user_id, habit_type ('sigaret'|'nos'|'alkogol'), daily_baseline, daily_limit, cost_per_unit (UZS), target_quit_date, is_active
-**usage_logs** — user_id, habit_type, quantity (default 1), logged_at
-**health_milestones** — habit_type, hours_after, title_uz, description_uz, icon (seeded, read-only)
+**Core tables:**
+- **users** — telegram_id, first_name, username, language ('uz'|'ru'), notifications_enabled, notification_time, timezone, weekly_summary, created_at
+- **habit_profiles** — user_id, habit_type ('sigaret'|'nos'|'alkogol'), daily_baseline, daily_limit, cost_per_unit (UZS), target_quit_date, is_active
+- **usage_logs** — user_id, habit_type, quantity (default 1), logged_at
+- **health_milestones** — habit_type, hours_after, title_uz, description_uz, title_ru, description_ru, icon (seeded, read-only)
+
+**Post-MVP tables:**
+- **quit_plans** — user_id, habit_type, speed ('slow'|'medium'|'fast'), created_at
+- **quit_plan_steps** — plan_id, step_number, step_name, daily_limit, start_date, end_date, status
+- **groups** — invite_code, name, created_by, created_at
+- **group_members** — group_id, user_id, hide_alkogol, joined_at
+
+**Migrations:** 001_tables.sql → 002_seed.sql → 003_i18n.sql → 004_notifications.sql → 005_quit_plans.sql → 006_community.sql
 
 Key constraint: UNIQUE(user_id, habit_type) on habit_profiles.
 Key index: (user_id, habit_type, logged_at DESC) on usage_logs.
@@ -199,9 +221,22 @@ DELETE /api/logs/last           Body: { habit_type }
 GET    /api/logs/today         → { data: { sigaret: 8, nos: 3, alkogol: 0 } }
 GET    /api/logs/daily?days=7  → { data: [ { date, sigaret: 12, nos: 5, alkogol: 1 }, ... ] }
 
-GET    /api/health/:habitType  → { data: { last_log_at, hours_since: number, milestones: [ { ...milestone, unlocked: bool, unlocked_ago?: string, time_until?: string } ] } }
+GET    /api/health/:habitType  → { data: { last_log_at, hours_since, milestones: [...] } }
 
-GET    /api/stats/money        → { data: { today: { sigaret: 45000, nos: 0 }, total: { sigaret: 380000, nos: 125000 } } }
+GET    /api/stats/money        → { data: { today: {...}, total: {...} } }
+GET    /api/stats/streak       → { data: { sigaret: 3, nos: 7, alkogol: 0 } }  (consecutive zero-use days)
+
+POST   /api/quit-plan          Body: { habit_type, speed }  → Create adaptive quit plan
+GET    /api/quit-plan/:habitType → Get plan with steps
+PUT    /api/quit-plan/:habitType → Update plan
+DELETE /api/quit-plan/:habitType → Delete plan
+
+POST   /api/groups             Body: { name }  → Create group with invite code
+GET    /api/groups             → List user's groups
+POST   /api/groups/join        Body: { invite_code }  → Join group
+GET    /api/groups/:groupId    → Group details + member progress
+DELETE /api/groups/:groupId    → Leave/delete group
+PUT    /api/groups/:groupId/privacy  Body: { hide_alkogol }  → Toggle privacy
 
 GET    /api/ping               → { status: "ok" }  (health check, no auth)
 ```
@@ -214,7 +249,7 @@ Money calculation:
 
 ## Health Milestones Data
 
-Seeded into health_milestones table. Full data in PROJECT_PLAN.md section 7.
+Seeded into health_milestones table (22 rows: 9 sigaret + 6 nos + 7 alkogol). Bilingual titles/descriptions (uz + ru).
 
 Unlock logic: a milestone is unlocked if the time since the user's last usage_log for that habit_type >= hours_after. If no logs exist and profile was created > hours_after ago, also unlocked.
 
@@ -222,58 +257,22 @@ Unlock logic: a milestone is unlocked if the time since the user's last usage_lo
 
 ## Development Order
 
-When building this project, follow this order:
+### Steps 1–7: COMPLETED
+All core MVP features built: project setup, database, API (all endpoints), bot, webapp shell, all pages.
 
-### Step 1: Project Setup
-- Initialize all three package.json files
-- Set up TypeScript configs
-- Create .env.example files
-- Create the folder structure
+### Post-MVP Features: COMPLETED
+- i18n (uz/ru) with i18next
+- Streak counter (API + Dashboard display)
+- Bot push notifications (4 types, node-cron scheduling, settings UI)
+- Adaptive quit plans (3 speed presets, step progression, cron transitions)
+- Community/friends (groups, invite codes, member progress, privacy)
 
-### Step 2: Database
-- Write migration SQL files
-- Write seed data SQL (health milestones)
-- Create db.ts connection file
-- Test connection
-
-### Step 3: API Core
-- Express server with CORS, JSON parsing
-- Telegram auth middleware (initData validation)
-- Auth route (POST /api/auth — upsert user)
-- Test with curl
-
-### Step 4: API Routes
-- Profiles CRUD
-- Log creation + undo + today + daily
-- Health milestones with unlock calculation
-- Money saved calculation
-- Test each endpoint
-
-### Step 5: Bot
-- grammy bot with /start command
-- WebApp menu button pointing to webapp URL
-- Deploy bot
-
-### Step 6: Webapp Shell
-- Vite + React + Tailwind setup
-- Telegram WebApp SDK integration
-- HashRouter with 4 routes
-- Bottom navigation component
-- API client with auth header
-- Auth flow: on mount → send initData → get user
-
-### Step 7: Webapp Pages
-- Onboarding (multi-step form)
-- Dashboard (habit cards + tap buttons + money saved)
-- Stats (Recharts weekly chart)
-- Health (timeline component)
-- Profile (view/edit/reset)
-
-### Step 8: Deploy
-- API → Railway
+### Step 8: Deploy (REMAINING)
+- API → Railway with PostgreSQL
 - Bot → Railway
 - Webapp → Railway (or Vercel/Netlify for static hosting)
 - Set Mini App URL in BotFather
+- End-to-end testing in real Telegram client
 
 ---
 
@@ -886,18 +885,26 @@ Before committing any UI code, verify ALL of these:
 
 ---
 
-## Current Project Status (as of 2026-02-23)
+## Current Project Status (as of 2026-03-09)
 
-### Completed (Steps 1–7)
+### Completed
 - All project scaffolding, TypeScript configs, and dependencies installed
-- Database: migrations + 22 health milestone seed rows (9 sigaret + 6 nos + 7 alkogol), SQLite dev DB operational
-- API: all 10 endpoints implemented and working (auth, profiles, logs, health, stats, ping)
-- Bot: grammy shell with /start + WebApp menu button
-- Webapp: all 5 pages built (Onboarding, Dashboard, Stats, Health, Profile)
-- Webapp: 9 reusable components, 3 custom hooks, 4 lib modules (api, colors, telegram, types)
+- Database: 6 migration files, 9 tables, SQLite dev DB operational
+- API: all endpoints implemented (auth, profiles, logs, health, stats, streak, quit-plan, groups, ping)
+- API: cron.ts handles push notifications (4 types) + quit plan step transitions
+- Bot: grammy with /start + WebApp menu button + notification sending
+- Webapp: 7 pages (Onboarding, Dashboard, Stats, Health, Profile, Community, GroupDetail)
+- Webapp: 12 components, 3 hooks, 4 lib modules, i18n (uz/ru)
 - Dev mode with SQLite + bypassed auth for local testing
 
-### Remaining (Step 8 — Deployment)
+### Post-MVP Features Implemented
+1. **i18n** — uz/ru locales, auto-detect from Telegram, language selector in Profile
+2. **Streak counter** — consecutive zero-use days, displayed on Dashboard
+3. **Push notifications** — 4 types via grammy + node-cron, settings in Profile
+4. **Adaptive quit plans** — 3 speed presets, step progression, Dashboard progress card
+5. **Community/friends** — groups with invite codes, member progress, alkogol privacy toggle, 4th nav tab
+
+### Remaining (Deployment)
 - Deploy API to Railway with PostgreSQL
 - Deploy bot to Railway
 - Deploy webapp (Railway / Vercel / Netlify)

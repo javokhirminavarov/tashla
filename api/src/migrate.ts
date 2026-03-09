@@ -52,20 +52,6 @@ async function migrate() {
     const { default: pg } = await import("pg");
     const pool = new pg.Pool({ connectionString: DATABASE_URL });
 
-    // Drop all tables and recreate from scratch (no user data to preserve)
-    console.log("  dropping all tables for fresh start...");
-    await pool.query(`
-      DROP TABLE IF EXISTS group_members CASCADE;
-      DROP TABLE IF EXISTS groups CASCADE;
-      DROP TABLE IF EXISTS quit_plan_steps CASCADE;
-      DROP TABLE IF EXISTS quit_plans CASCADE;
-      DROP TABLE IF EXISTS usage_logs CASCADE;
-      DROP TABLE IF EXISTS habit_profiles CASCADE;
-      DROP TABLE IF EXISTS health_milestones CASCADE;
-      DROP TABLE IF EXISTS users CASCADE;
-      DROP TABLE IF EXISTS _migrations CASCADE;
-    `);
-
     await pool.query(`
       CREATE TABLE IF NOT EXISTS _migrations (
         id SERIAL PRIMARY KEY,
@@ -74,11 +60,22 @@ async function migrate() {
       )
     `);
 
+    const applied = new Set(
+      (await pool.query("SELECT name FROM _migrations")).rows.map(
+        (r: { name: string }) => r.name
+      )
+    );
+
     const files = readdirSync(migrationsDir)
       .filter((f) => f.endsWith(".sql"))
       .sort();
 
     for (const file of files) {
+      if (applied.has(file)) {
+        console.log(`  skip: ${file} (already applied)`);
+        continue;
+      }
+
       let sql = readFileSync(join(migrationsDir, file), "utf-8");
       // Convert SQLite syntax to PostgreSQL
       sql = sql.replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, "SERIAL PRIMARY KEY");
