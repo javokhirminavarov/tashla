@@ -1,4 +1,5 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, Component } from "react";
+import type { ReactNode, ErrorInfo } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { tg } from "./lib/telegram";
@@ -12,6 +13,60 @@ import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import GroupDetail from "./pages/GroupDetail";
 import type { HabitProfile } from "./lib/types";
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo): void {
+    console.error("ErrorBoundary caught:", error, info.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: 20,
+          color: "#EF4444",
+          fontFamily: "sans-serif",
+          background: "#122017",
+          minHeight: "100vh",
+        }}>
+          <h3 style={{ color: "#F1F5F2", marginBottom: 8 }}>TASHLA Error</h3>
+          <p>{this.state.error?.message || "Unknown error"}</p>
+          <p style={{ fontSize: 12, color: "#5C716A", marginTop: 8 }}>
+            {this.state.error?.stack?.split("\n").slice(0, 3).join("\n")}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              marginTop: 16,
+              padding: "12px 24px",
+              background: "#1fc762",
+              color: "#0d1a12",
+              border: "none",
+              borderRadius: 12,
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: "pointer",
+            }}
+          >
+            Qayta urinish
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const { t } = useTranslation();
@@ -72,33 +127,35 @@ export default function App() {
   const needsOnboarding = !profiles || profiles.length === 0;
 
   return (
-    <HashRouter>
-      <Routes>
-        {needsOnboarding ? (
-          <Route
-            path="*"
-            element={<Onboarding onComplete={handleOnboardingComplete} />}
-          />
-        ) : (
-          <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard profiles={profiles} />} />
-            <Route path="/stats" element={<Stats profiles={profiles} />} />
-            <Route path="/health" element={<Health profiles={profiles} />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/group/:id" element={<GroupDetail />} />
+    <ErrorBoundary>
+      <HashRouter>
+        <Routes>
+          {needsOnboarding ? (
             <Route
-              path="/profile"
-              element={
-                <Profile
-                  user={user!}
-                  profiles={profiles}
-                  refreshProfiles={refreshProfiles}
-                />
-              }
+              path="*"
+              element={<Onboarding onComplete={handleOnboardingComplete} />}
             />
-          </Route>
-        )}
-      </Routes>
-    </HashRouter>
+          ) : (
+            <Route element={<Layout />}>
+              <Route path="/" element={<Dashboard profiles={profiles} />} />
+              <Route path="/stats" element={<Stats profiles={profiles} />} />
+              <Route path="/health" element={<Health profiles={profiles} />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/group/:id" element={<GroupDetail />} />
+              <Route
+                path="/profile"
+                element={
+                  <Profile
+                    user={user!}
+                    profiles={profiles}
+                    refreshProfiles={refreshProfiles}
+                  />
+                }
+              />
+            </Route>
+          )}
+        </Routes>
+      </HashRouter>
+    </ErrorBoundary>
   );
 }
