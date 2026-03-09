@@ -41,7 +41,9 @@
       "WebFetch(domain:api-production-b3d3.up.railway.app)",
       "WebFetch(domain:webapp-production-4b53.up.railway.app)",
       "Bash(curl:*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(railway status:*)",
+      "WebFetch(domain:api.telegram.org)"
     ]
   }
 }
