@@ -50,7 +50,14 @@ const mockWebApp: TelegramWebApp = {
   expand: () => {},
   close: () => {},
   initData: "",
-  initDataUnsafe: {},
+  initDataUnsafe: {
+    user: {
+      id: 123456789,
+      first_name: "Dev",
+      username: "dev_user",
+      language_code: "uz",
+    },
+  },
   version: "6.0",
   isVersionAtLeast: () => true,
   setHeaderColor: () => {},
