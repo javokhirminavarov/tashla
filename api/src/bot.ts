@@ -3,7 +3,6 @@ import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
 const WEBAPP_URL = process.env.WEBAPP_URL || "";
-const DEV_MODE = process.env.DEV_MODE === "true";
 
 let botInstance: Bot | null = null;
 
@@ -64,61 +63,33 @@ export async function startBot(): Promise<void> {
 
   setupBotHandlers(bot);
 
-  if (DEV_MODE) {
-    // Local dev: use long polling
+  const domain = process.env.RAILWAY_PUBLIC_DOMAIN;
+  if (!domain) {
+    console.log("⚠️ RAILWAY_PUBLIC_DOMAIN not set — cannot configure webhook, bot disabled");
+    return;
+  }
+
+  const webhookUrl = `https://${domain}${getWebhookPath()}`;
+
+  // Retry setWebhook a few times — during Railway zero-downtime deploys,
+  // the old instance may briefly conflict with the new one
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      await bot.api.deleteWebhook({ drop_pending_updates: true });
-      await bot.start({
-        drop_pending_updates: true,
-        onStart: () => console.log("🤖 TASHLA bot is running (polling)"),
-      });
+      await bot.api.setWebhook(webhookUrl, { drop_pending_updates: true });
+      console.log(`🤖 TASHLA bot webhook set to ${webhookUrl}`);
+      return;
     } catch (err: unknown) {
       const is409 = err instanceof Error && err.message.includes("409");
-      if (is409) {
-        console.log("⚠️ Conflict (409) — another polling session active. Retrying in 5s...");
-        await new Promise((r) => setTimeout(r, 5000));
-        await bot.api.deleteWebhook({ drop_pending_updates: true });
-        await bot.start({
-          drop_pending_updates: true,
-          onStart: () => console.log("🤖 TASHLA bot is running (polling, retry)"),
-        });
-      } else {
-        throw err;
+      if (is409 && attempt < 3) {
+        console.log(`⚠️ setWebhook 409 conflict, retrying in ${attempt * 2}s...`);
+        await new Promise((r) => setTimeout(r, attempt * 2000));
+        continue;
       }
-    }
-  } else {
-    // Production: use webhooks — no polling, no 409 conflicts
-    const domain = process.env.RAILWAY_PUBLIC_DOMAIN;
-    if (!domain) {
-      console.log("⚠️ RAILWAY_PUBLIC_DOMAIN not set — cannot configure webhook, bot disabled");
-      return;
-    }
-
-    const webhookUrl = `https://${domain}${getWebhookPath()}`;
-
-    // Retry setWebhook a few times — during Railway zero-downtime deploys,
-    // the old instance may briefly conflict with the new one
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        await bot.api.setWebhook(webhookUrl, { drop_pending_updates: true });
-        console.log(`🤖 TASHLA bot webhook set to ${webhookUrl}`);
-        return;
-      } catch (err: unknown) {
-        const is409 = err instanceof Error && err.message.includes("409");
-        if (is409 && attempt < 3) {
-          console.log(`⚠️ setWebhook 409 conflict, retrying in ${attempt * 2}s...`);
-          await new Promise((r) => setTimeout(r, attempt * 2000));
-          continue;
-        }
-        throw err;
-      }
+      throw err;
     }
   }
 }
 
 export function stopBot(): void {
-  if (botInstance && DEV_MODE) {
-    console.log("🛑 Stopping bot polling...");
-    botInstance.stop();
-  }
+  // In webhook mode, no polling to stop
 }

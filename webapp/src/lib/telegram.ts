@@ -46,20 +46,18 @@ declare global {
 const isTelegram = typeof window !== "undefined" && !!window.Telegram?.WebApp;
 
 const mockWebApp: TelegramWebApp = {
-  ready: () => console.log("[Dev] Telegram.WebApp.ready()"),
-  expand: () => console.log("[Dev] Telegram.WebApp.expand()"),
-  close: () => console.log("[Dev] Telegram.WebApp.close()"),
-  initData: "dev",
-  initDataUnsafe: {
-    user: { id: 123456789, first_name: "Dev", username: "dev_user" },
-  },
+  ready: () => {},
+  expand: () => {},
+  close: () => {},
+  initData: "",
+  initDataUnsafe: {},
   version: "6.0",
   isVersionAtLeast: () => true,
-  setHeaderColor: (c: string) => console.log("[Dev] setHeaderColor:", c),
-  setBackgroundColor: (c: string) => console.log("[Dev] setBackgroundColor:", c),
+  setHeaderColor: () => {},
+  setBackgroundColor: () => {},
   HapticFeedback: {
-    impactOccurred: (s: string) => console.log("[Dev] haptic:", s),
-    notificationOccurred: (t: string) => console.log("[Dev] notification:", t),
+    impactOccurred: () => {},
+    notificationOccurred: () => {},
   },
   showConfirm: (_msg: string, cb: (confirmed: boolean) => void) => cb(true),
   MainButton: {

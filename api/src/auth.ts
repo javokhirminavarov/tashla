@@ -16,9 +16,7 @@ declare global {
   }
 }
 
-const DEV_MODE = process.env.DEV_MODE === "true";
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
-const DEV_TELEGRAM_ID = parseInt(process.env.DEV_TELEGRAM_ID || "123456789", 10);
 
 function validateInitData(initData: string): TelegramUser | null {
   const params = new URLSearchParams(initData);
@@ -66,17 +64,6 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  if (DEV_MODE) {
-    const devUser = await upsertUser({
-      id: DEV_TELEGRAM_ID,
-      first_name: "Dev",
-      username: "dev_user",
-    });
-    req.user = devUser;
-    next();
-    return;
-  }
-
   const initData = req.headers["x-telegram-init-data"] as string | undefined;
   if (!initData) {
     res.status(401).json({ error: "Missing X-Telegram-Init-Data header" });

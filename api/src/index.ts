@@ -45,13 +45,11 @@ app.use("/api/stats", statRoutes);
 app.use("/api/quit-plan", quitPlanRoutes);
 app.use("/api/groups", groupRoutes);
 
-// Bot webhook route (production only — must be before static/SPA fallback)
-if (process.env.DEV_MODE !== "true") {
-  const webhookCb = getBotWebhookCallback();
-  if (webhookCb) {
-    app.post(getWebhookPath(), webhookCb);
-    console.log(`Bot webhook route registered at ${getWebhookPath()}`);
-  }
+// Bot webhook route (must be before static/SPA fallback)
+const webhookCb = getBotWebhookCallback();
+if (webhookCb) {
+  app.post(getWebhookPath(), webhookCb);
+  console.log(`Bot webhook route registered at ${getWebhookPath()}`);
 }
 
 // Serve webapp static files
