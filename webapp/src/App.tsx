@@ -104,19 +104,21 @@ export default function App() {
   if (error) {
     return (
       <div className="min-h-screen bg-[#122017] flex items-center justify-center px-6">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-full mb-4 bg-white/5 flex items-center justify-center mx-auto">
-            <span className="material-symbols-outlined text-[28px] text-[#EF4444]">
+        <div className="text-center max-w-sm">
+          <div className="w-20 h-20 rounded-full mb-5 bg-[#EF4444]/10 flex items-center justify-center mx-auto border border-[#EF4444]/20">
+            <span className="material-symbols-outlined text-[36px] text-[#EF4444]">
               error
             </span>
           </div>
-          <p className="text-[#EF4444] font-semibold text-base mb-2">
+          <p className="text-[#F1F5F2] font-semibold text-xl mb-3">
             {t("common.error")}
           </p>
-          <p className="text-[#94A3A1] text-sm mb-4">{error}</p>
+          <div className="bg-[#1a2c22] rounded-2xl p-4 mb-5 border border-white/[0.06]">
+            <p className="text-[#EF4444] text-sm font-medium break-words">{error}</p>
+          </div>
           <button
             onClick={() => window.location.reload()}
-            className="min-h-[48px] px-6 rounded-2xl bg-[#1fc762] text-[#0d1a12] font-semibold text-sm tracking-wide active:scale-[0.97] active:bg-[#17a34a] transition-all duration-150"
+            className="w-full min-h-[56px] rounded-2xl bg-[#1fc762] text-[#0d1a12] font-semibold text-sm tracking-wide active:scale-[0.97] active:bg-[#17a34a] transition-all duration-150 shadow-[0_0_20px_rgba(31,199,98,0.3)]"
           >
             {t("common.retry", "Qayta urinish")}
           </button>

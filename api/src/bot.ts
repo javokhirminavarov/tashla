@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 
-const BOT_TOKEN = process.env.BOT_TOKEN || "";
+const BOT_TOKEN = (process.env.BOT_TOKEN || "").trim();
 const WEBAPP_URL = process.env.WEBAPP_URL || "";
 
 let botInstance: Bot | null = null;

@@ -45,7 +45,8 @@
       "Bash(railway status:*)",
       "WebFetch(domain:api.telegram.org)",
       "Bash(npm list:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(cat:*)"
     ]
   }
 }

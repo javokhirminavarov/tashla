@@ -1,4 +1,5 @@
 import "dotenv/config";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
@@ -34,6 +35,31 @@ app.use(express.json());
 // Health check
 app.get("/api/ping", (_req, res) => {
   res.json({ data: "pong" });
+});
+
+// Debug endpoint — diagnose deployment issues (no secrets exposed)
+app.get("/api/debug", (_req, res) => {
+  const botToken = (process.env.BOT_TOKEN || "").trim();
+  let webappFiles: string[] = [];
+  try {
+    webappFiles = fs.readdirSync(WEBAPP_DIR);
+  } catch {
+    webappFiles = ["ERROR: cannot read WEBAPP_DIR"];
+  }
+  res.json({
+    data: {
+      env: {
+        BOT_TOKEN: botToken ? `present (len=${botToken.length}, ${botToken.slice(0, 4)}...${botToken.slice(-4)})` : "MISSING",
+        DATABASE_URL: process.env.DATABASE_URL ? "present" : "MISSING",
+        DEV_MODE: process.env.DEV_MODE || "not set",
+        WEBAPP_URL: process.env.WEBAPP_URL || "not set",
+        PORT: process.env.PORT || "not set",
+        NODE_ENV: process.env.NODE_ENV || "not set",
+      },
+      webapp_dir: WEBAPP_DIR,
+      webapp_files: webappFiles,
+    },
+  });
 });
 
 // API routes
