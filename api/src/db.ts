@@ -32,7 +32,7 @@ let queryFn: (sql: string, params?: unknown[]) => Promise<QueryResult>;
 const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS users (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    telegram_id     INTEGER UNIQUE NOT NULL,
+    telegram_id     BIGINT UNIQUE NOT NULL,
     first_name      TEXT,
     username        TEXT,
     language        TEXT DEFAULT 'uz',
@@ -212,6 +212,13 @@ if (isSQLite) {
     await pool.query(pgSeed);
   } catch {
     console.log("Seed data: some rows may already exist, skipping");
+  }
+
+  // Ensure telegram_id is BIGINT for large Telegram IDs (CREATE TABLE IF NOT EXISTS won't alter existing columns)
+  try {
+    await pool.query("ALTER TABLE users ALTER COLUMN telegram_id TYPE BIGINT;");
+  } catch {
+    // Already BIGINT or table just created with correct type — safe to ignore
   }
 
   console.log("PostgreSQL database initialized with schema");
