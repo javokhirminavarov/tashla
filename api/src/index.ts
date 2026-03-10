@@ -1,7 +1,4 @@
 import "dotenv/config";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.js";
@@ -26,10 +23,11 @@ process.on("uncaughtException", (err) => {
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000", 10);
 console.log(`Configured PORT=${PORT} (env: ${process.env.PORT || "not set, defaulting to 3000"})`);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const WEBAPP_DIR = process.env.WEBAPP_DIR || path.join(__dirname, "../../public");
 
-app.use(cors({ origin: true }));
+app.use(cors({
+  origin: process.env.WEBAPP_URL || true,
+  credentials: true
+}));
 app.use(express.json());
 
 // Health check
@@ -40,12 +38,6 @@ app.get("/api/ping", (_req, res) => {
 // Debug endpoint — diagnose deployment issues (no secrets exposed)
 app.get("/api/debug", (_req, res) => {
   const botToken = (process.env.BOT_TOKEN || "").trim();
-  let webappFiles: string[] = [];
-  try {
-    webappFiles = fs.readdirSync(WEBAPP_DIR);
-  } catch {
-    webappFiles = ["ERROR: cannot read WEBAPP_DIR"];
-  }
   res.json({
     data: {
       env: {
@@ -56,8 +48,6 @@ app.get("/api/debug", (_req, res) => {
         PORT: process.env.PORT || "not set",
         NODE_ENV: process.env.NODE_ENV || "not set",
       },
-      webapp_dir: WEBAPP_DIR,
-      webapp_files: webappFiles,
     },
   });
 });
@@ -71,24 +61,15 @@ app.use("/api/stats", statRoutes);
 app.use("/api/quit-plan", quitPlanRoutes);
 app.use("/api/groups", groupRoutes);
 
-// Bot webhook route (must be before static/SPA fallback)
+// Bot webhook route
 const webhookCb = getBotWebhookCallback();
 if (webhookCb) {
   app.post(getWebhookPath(), webhookCb);
   console.log(`Bot webhook route registered at ${getWebhookPath()}`);
 }
 
-// Serve webapp static files
-app.use(express.static(WEBAPP_DIR));
-
-// SPA fallback — serve index.html for all non-API routes
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(WEBAPP_DIR, "index.html"));
-});
-
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Serving webapp from ${WEBAPP_DIR}`);
   startCronJobs();
   startBot().catch((err) => console.error("Bot startup failed:", err));
 });
