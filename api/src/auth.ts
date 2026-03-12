@@ -19,47 +19,28 @@ declare global {
 const BOT_TOKEN = (process.env.BOT_TOKEN || "").trim();
 
 function validateInitData(initData: string): TelegramUser | null {
-  console.log(`[auth] validateInitData called, initData length=${initData.length}`);
-
   const params = new URLSearchParams(initData);
   const hash = params.get("hash");
-  if (!hash) {
-    console.log("[auth] FAIL: no hash param found in initData");
-    return null;
-  }
-  console.log(`[auth] hash param found, length=${hash.length}`);
+  if (!hash) return null;
 
   params.delete("hash");
   const entries = Array.from(params.entries());
   entries.sort((a, b) => a[0].localeCompare(b[0]));
   const dataCheckString = entries.map(([k, v]) => `${k}=${v}`).join("\n");
 
-  console.log(`[auth] dataCheckString keys: ${entries.map(([k]) => k).join(", ")}`);
-  console.log(`[auth] BOT_TOKEN length=${BOT_TOKEN.length}, first4=${BOT_TOKEN.slice(0, 4)}, last4=${BOT_TOKEN.slice(-4)}`);
-
   const secretKey = createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
   const computedHash = createHmac("sha256", secretKey)
     .update(dataCheckString)
     .digest("hex");
 
-  if (computedHash !== hash) {
-    console.log(`[auth] FAIL: hash mismatch. computed=${computedHash.slice(0, 8)}... received=${hash.slice(0, 8)}...`);
-    return null;
-  }
-  console.log("[auth] hash validation PASSED");
+  if (computedHash !== hash) return null;
 
   const userStr = params.get("user");
-  if (!userStr) {
-    console.log("[auth] FAIL: no user param in initData");
-    return null;
-  }
+  if (!userStr) return null;
 
   try {
-    const user = JSON.parse(userStr) as TelegramUser;
-    console.log(`[auth] user parsed: id=${user.id}, name=${user.first_name}`);
-    return user;
+    return JSON.parse(userStr) as TelegramUser;
   } catch {
-    console.log("[auth] FAIL: could not parse user JSON");
     return null;
   }
 }
@@ -91,7 +72,6 @@ export async function authMiddleware(
   }
 
   const initData = req.headers["x-telegram-init-data"] as string | undefined;
-  console.log(`[auth] middleware: initData header ${initData ? `present (length=${initData.length})` : "MISSING"}`);
   if (!initData) {
     res.status(401).json({ error: "Missing X-Telegram-Init-Data header" });
     return;
@@ -108,4 +88,3 @@ export async function authMiddleware(
   next();
 }
 
-export { upsertUser, validateInitData };

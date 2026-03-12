@@ -105,7 +105,6 @@ async function streakMotivation(): Promise<void> {
         [tid, habit.habit_type]
       );
       let streak = 0;
-      const today = new Date().toISOString().split("T")[0];
       for (const row of logsResult.rows) {
         const count = Number(row.count);
         if (count <= habit.limit) streak++;

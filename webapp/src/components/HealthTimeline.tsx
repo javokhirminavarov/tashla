@@ -3,7 +3,6 @@ import type { MilestoneData } from "../lib/types";
 
 interface HealthTimelineProps {
   milestones: MilestoneData[];
-  habitColor: string;
   hoursSince: number;
 }
 

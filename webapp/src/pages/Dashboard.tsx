@@ -118,7 +118,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
         )}
 
         {/* Savings Card */}
-        <MoneySaved money={money} profiles={profiles} />
+        <MoneySaved money={money} />
 
         {/* Quit Plan Progress */}
         {(() => {

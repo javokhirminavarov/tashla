@@ -60,8 +60,6 @@ router.get("/money", authMiddleware, async (req, res) => {
       const savedToday = Math.max(0, baseline - todayCount) * cost;
       todaySaved[ht] = savedToday;
 
-      // Total saved: sum over all days
-      totalSaved[ht] = 0;
     }
 
     // Group daily results by date+habit
@@ -148,11 +146,8 @@ router.get("/streak", authMiddleware, async (req, res) => {
 
       // Check today first
       const todayCount = dailyMap[todayStr]?.[ht] ?? 0;
-      let startFromYesterday = false;
-
       if (todayCount === 0) {
         // No logs today — start counting from yesterday
-        startFromYesterday = true;
       } else if (todayCount > limit) {
         // Over limit today — streak is 0
         streaks[ht] = 0;
@@ -162,9 +157,8 @@ router.get("/streak", authMiddleware, async (req, res) => {
         streak = 1;
       }
 
-      // Go backwards from yesterday (or today-1 if starting from yesterday)
-      const startDay = startFromYesterday ? 1 : 1;
-      for (let d = startDay; d <= 90; d++) {
+      // Go backwards from yesterday
+      for (let d = 1; d <= 90; d++) {
         const date = new Date(today);
         date.setDate(date.getDate() - d);
         const dateStr = date.toISOString().split("T")[0];

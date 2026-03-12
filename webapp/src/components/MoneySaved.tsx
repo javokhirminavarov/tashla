@@ -1,9 +1,8 @@
 import { useTranslation } from "react-i18next";
-import type { MoneySaved as MoneySavedType, HabitProfile } from "../lib/types";
+import type { MoneySaved as MoneySavedType } from "../lib/types";
 
 interface MoneySavedProps {
   money: MoneySavedType;
-  profiles: HabitProfile[];
 }
 
 export default function MoneySaved({ money }: MoneySavedProps) {

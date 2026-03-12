@@ -149,7 +149,6 @@ export default function Health({ profiles }: HealthProps) {
             {/* Milestones timeline */}
             <HealthTimeline
               milestones={healthData.milestones}
-              habitColor={HABIT_COLORS[activeTab]}
               hoursSince={healthData.hours_since}
             />
           </>
