@@ -46,7 +46,8 @@
       "WebFetch(domain:api.telegram.org)",
       "Bash(npm list:*)",
       "Bash(grep:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(find /d/projects/tashla/webapp -type f -name \"*.env*\" -o -name \".env*\" 2>/dev/null | head -20)"
     ]
   }
 }

@@ -32,6 +32,15 @@ async function apiCall<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  async ping(): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_URL}/api/ping`, { signal: AbortSignal.timeout(5000) });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
   auth(): Promise<AuthResponse> {
     return apiCall("/api/auth", {
       method: "POST",

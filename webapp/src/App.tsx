@@ -68,7 +68,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   }
 }
 
-export default function App() {
+function AppContent() {
   const { t } = useTranslation();
   const { user, profiles, loading, error, refreshProfiles, setProfiles } = useAuth();
 
@@ -101,7 +101,9 @@ export default function App() {
     );
   }
 
-  if (error) {
+  const errorToShow = error || (!user ? "Auth yakunlandi lekin foydalanuvchi topilmadi (no user after auth)" : null);
+
+  if (errorToShow) {
     return (
       <div className="min-h-screen bg-[#122017] flex items-center justify-center px-6">
         <div className="text-center max-w-sm">
@@ -114,7 +116,17 @@ export default function App() {
             {t("common.error")}
           </p>
           <div className="bg-[#1a2c22] rounded-2xl p-4 mb-5 border border-white/[0.06]">
-            <p className="text-[#EF4444] text-sm font-medium break-words">{error}</p>
+            <p className="text-[#EF4444] text-sm font-medium break-words">{errorToShow}</p>
+          </div>
+          {/* Diagnostic panel */}
+          <div className="bg-[#0d1a12] rounded-xl p-4 mb-5 border border-white/[0.04] text-left">
+            <p className="text-[10px] uppercase tracking-wide text-[#5C716A] mb-2">Diagnostika</p>
+            <div className="space-y-1 text-xs text-[#94A3A1] font-mono break-all">
+              <p>API: {import.meta.env.VITE_API_URL || "(bo'sh)"}</p>
+              <p>TG SDK: {typeof window !== "undefined" && window.Telegram?.WebApp ? "ha" : "yo'q"}</p>
+              <p>initData: {tg.initData ? `${tg.initData.substring(0, 30)}...` : "(bo'sh)"}</p>
+              <p>version: {tg.version || "?"}</p>
+            </div>
           </div>
           <button
             onClick={() => window.location.reload()}
@@ -130,35 +142,41 @@ export default function App() {
   const needsOnboarding = !profiles || profiles.length === 0;
 
   return (
-    <ErrorBoundary>
-      <HashRouter>
-        <Routes>
-          {needsOnboarding ? (
+    <HashRouter>
+      <Routes>
+        {needsOnboarding ? (
+          <Route
+            path="*"
+            element={<Onboarding onComplete={handleOnboardingComplete} />}
+          />
+        ) : (
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard profiles={profiles} />} />
+            <Route path="/stats" element={<Stats profiles={profiles} />} />
+            <Route path="/health" element={<Health profiles={profiles} />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/group/:id" element={<GroupDetail />} />
             <Route
-              path="*"
-              element={<Onboarding onComplete={handleOnboardingComplete} />}
+              path="/profile"
+              element={
+                <Profile
+                  user={user!}
+                  profiles={profiles}
+                  refreshProfiles={refreshProfiles}
+                />
+              }
             />
-          ) : (
-            <Route element={<Layout />}>
-              <Route path="/" element={<Dashboard profiles={profiles} />} />
-              <Route path="/stats" element={<Stats profiles={profiles} />} />
-              <Route path="/health" element={<Health profiles={profiles} />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/group/:id" element={<GroupDetail />} />
-              <Route
-                path="/profile"
-                element={
-                  <Profile
-                    user={user!}
-                    profiles={profiles}
-                    refreshProfiles={refreshProfiles}
-                  />
-                }
-              />
-            </Route>
-          )}
-        </Routes>
-      </HashRouter>
+          </Route>
+        )}
+      </Routes>
+    </HashRouter>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
     </ErrorBoundary>
   );
 }

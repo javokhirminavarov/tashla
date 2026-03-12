@@ -21,9 +21,20 @@ export function useAuth() {
   });
 
   useEffect(() => {
-    api
-      .auth()
-      .then((data) => {
+    async function init() {
+      try {
+        // Pre-check: can we reach the API at all?
+        const reachable = await api.ping();
+        if (!reachable) {
+          setState((s) => ({
+            ...s,
+            loading: false,
+            error: "Serverga ulanib bo'lmadi (API unreachable)",
+          }));
+          return;
+        }
+
+        const data = await api.auth();
         setState({
           user: data.user,
           profiles: data.profiles,
@@ -37,7 +48,6 @@ export function useAuth() {
           i18n.changeLanguage(userLang);
           localStorage.setItem("tashla_language", userLang);
         } else if (!userLang || userLang === "uz") {
-          // Auto-detect from Telegram if user hasn't explicitly set a language
           const tgLang = tg.initDataUnsafe.user?.language_code;
           if (tgLang === "ru" && i18n.language !== "ru") {
             i18n.changeLanguage("ru");
@@ -45,14 +55,19 @@ export function useAuth() {
             api.updateLanguage("ru").catch(console.error);
           }
         }
-      })
-      .catch((err) => {
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error && err.message
+            ? err.message
+            : "Noma'lum xatolik (unknown error)";
         setState((s) => ({
           ...s,
           loading: false,
-          error: err.message,
+          error: message,
         }));
-      });
+      }
+    }
+    init();
   }, []);
 
   const refreshProfiles = useCallback(async () => {
