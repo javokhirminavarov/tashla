@@ -60,6 +60,18 @@
         _dbg('platform: ' + (window.Telegram.WebApp.platform || 'unknown'));
       }
       _dbg('waiting for module script...');
+
+      // Telegram Mini App v6.1+ injects tgWebAppData into the URL hash
+      // (e.g. #tgWebAppData=query_id%3D...). HashRouter interprets the hash
+      // as the route path, so we strip these params before React loads,
+      // otherwise no route matches and the page renders blank.
+      (function() {
+        var h = window.location.hash;
+        if (h && (h.indexOf('tgWebAppData') !== -1 || h.indexOf('tgWebAppVersion') !== -1)) {
+          _dbg('stripping tgWebApp hash params from URL');
+          history.replaceState(null, '', window.location.pathname + window.location.search + '#');
+        }
+      })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
