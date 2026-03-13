@@ -144,34 +144,43 @@ function AppContent() {
   }
 
   const needsOnboarding = !profiles || profiles.length === 0;
+  if (window._dbg) window._dbg('profiles=' + JSON.stringify(profiles?.map(p => p.habit_type)) + ' needsOnboarding=' + needsOnboarding);
 
-  return (
-    <HashRouter>
-      <Routes>
-        {needsOnboarding ? (
+  if (needsOnboarding) {
+    if (window._dbg) window._dbg('rendering Onboarding');
+    return (
+      <HashRouter>
+        <Routes>
           <Route
             path="*"
             element={<Onboarding onComplete={handleOnboardingComplete} />}
           />
-        ) : (
-          <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard profiles={profiles} />} />
-            <Route path="/stats" element={<Stats profiles={profiles} />} />
-            <Route path="/health" element={<Health profiles={profiles} />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/group/:id" element={<GroupDetail />} />
-            <Route
-              path="/profile"
-              element={
-                <Profile
-                  user={user!}
-                  profiles={profiles}
-                  refreshProfiles={refreshProfiles}
-                />
-              }
-            />
-          </Route>
-        )}
+        </Routes>
+      </HashRouter>
+    );
+  }
+
+  if (window._dbg) window._dbg('rendering Dashboard routes');
+  return (
+    <HashRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard profiles={profiles} />} />
+          <Route path="/stats" element={<Stats profiles={profiles} />} />
+          <Route path="/health" element={<Health profiles={profiles} />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/group/:id" element={<GroupDetail />} />
+          <Route
+            path="/profile"
+            element={
+              <Profile
+                user={user!}
+                profiles={profiles}
+                refreshProfiles={refreshProfiles}
+              />
+            }
+          />
+        </Route>
       </Routes>
     </HashRouter>
   );
