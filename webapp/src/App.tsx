@@ -1,6 +1,6 @@
 import { useEffect, useCallback, Component } from "react";
 import type { ReactNode, ErrorInfo } from "react";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { tg } from "./lib/telegram";
 import { useAuth } from "./hooks/useAuth";
@@ -28,6 +28,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error("ErrorBoundary caught:", error, info.componentStack);
+    if (window._dbg) window._dbg('ErrorBoundary CAUGHT: ' + error.message);
+    if (window._dbg && info.componentStack) window._dbg('stack: ' + info.componentStack.slice(0, 200));
   }
 
   render() {
@@ -66,6 +68,15 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
     }
     return this.props.children;
   }
+}
+
+function DebugRouter() {
+  const location = useLocation();
+  useEffect(() => {
+    if (window._dbg) window._dbg('router location: ' + location.pathname + location.hash);
+  }, [location]);
+  if (window._dbg) window._dbg('DebugRouter render, pathname=' + location.pathname);
+  return null;
 }
 
 function AppContent() {
@@ -160,9 +171,10 @@ function AppContent() {
     );
   }
 
-  if (window._dbg) window._dbg('rendering Dashboard routes');
+  if (window._dbg) window._dbg('rendering Dashboard routes, hash=' + window.location.hash);
   return (
     <HashRouter>
+      <DebugRouter />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard profiles={profiles} />} />
