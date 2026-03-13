@@ -77,7 +77,7 @@ export default function Community() {
             {groups.map((group) => (
               <button
                 key={group.id}
-                onClick={() => { navigate(`/community/${group.id}`); haptic("light"); }}
+                onClick={() => { navigate(`/group/${group.id}`); haptic("light"); }}
                 className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] flex items-center justify-between text-left transition-transform duration-100 active:scale-[0.97]"
               >
                 <div className="flex items-center gap-3">
