@@ -20,7 +20,6 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ profiles }: DashboardProps) {
-  if (window._dbg) window._dbg('Dashboard rendering, profiles=' + profiles.length);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { todayCounts, logUsage } = useLogs();

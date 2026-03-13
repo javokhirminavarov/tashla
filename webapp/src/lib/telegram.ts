@@ -40,7 +40,6 @@ declare global {
     Telegram?: {
       WebApp: TelegramWebApp;
     };
-    _dbg?: (msg: string) => void;
   }
 }
 

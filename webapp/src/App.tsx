@@ -1,6 +1,6 @@
 import { useEffect, useCallback, Component } from "react";
 import type { ReactNode, ErrorInfo } from "react";
-import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { tg } from "./lib/telegram";
 import { useAuth } from "./hooks/useAuth";
@@ -28,8 +28,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error("ErrorBoundary caught:", error, info.componentStack);
-    if (window._dbg) window._dbg('ErrorBoundary CAUGHT: ' + error.message);
-    if (window._dbg && info.componentStack) window._dbg('stack: ' + info.componentStack.slice(0, 200));
   }
 
   render() {
@@ -70,22 +68,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   }
 }
 
-function DebugRouter() {
-  const location = useLocation();
-  useEffect(() => {
-    if (window._dbg) window._dbg('router location: ' + location.pathname + location.hash);
-  }, [location]);
-  if (window._dbg) window._dbg('DebugRouter render, pathname=' + location.pathname);
-  return null;
-}
-
 function AppContent() {
   const { t } = useTranslation();
-  if (window._dbg) window._dbg('AppContent rendering');
   const { user, profiles, loading, error, refreshProfiles, setProfiles } = useAuth();
 
   useEffect(() => {
-    if (window._dbg) window._dbg('AppContent mounted');
     tg.ready();
     tg.expand();
     if (tg.isVersionAtLeast("6.1")) {
@@ -102,7 +89,6 @@ function AppContent() {
   );
 
   if (loading) {
-    if (window._dbg) window._dbg('showing loading state');
     return (
       <div className="min-h-screen bg-[#122017] flex flex-col items-center justify-center">
         <div className="animate-pulse space-y-4 w-64">
@@ -118,7 +104,6 @@ function AppContent() {
   const errorToShow = error || (!user ? "Auth yakunlandi lekin foydalanuvchi topilmadi (no user after auth)" : null);
 
   if (errorToShow) {
-    if (window._dbg) window._dbg('showing error: ' + errorToShow);
     return (
       <div className="min-h-screen bg-[#122017] flex items-center justify-center px-6">
         <div className="text-center max-w-sm">
@@ -133,7 +118,6 @@ function AppContent() {
           <div className="bg-[#1a2c22] rounded-2xl p-4 mb-5 border border-white/[0.06]">
             <p className="text-[#EF4444] text-sm font-medium break-words">{errorToShow}</p>
           </div>
-          {/* Diagnostic panel */}
           <div className="bg-[#0d1a12] rounded-xl p-4 mb-5 border border-white/[0.04] text-left">
             <p className="text-[10px] uppercase tracking-wide text-[#5C716A] mb-2">Diagnostika</p>
             <div className="space-y-1 text-xs text-[#94A3A1] font-mono break-all">
@@ -155,10 +139,8 @@ function AppContent() {
   }
 
   const needsOnboarding = !profiles || profiles.length === 0;
-  if (window._dbg) window._dbg('profiles=' + JSON.stringify(profiles?.map(p => p.habit_type)) + ' needsOnboarding=' + needsOnboarding);
 
   if (needsOnboarding) {
-    if (window._dbg) window._dbg('rendering Onboarding');
     return (
       <HashRouter>
         <Routes>
@@ -171,10 +153,8 @@ function AppContent() {
     );
   }
 
-  if (window._dbg) window._dbg('rendering Dashboard routes, hash=' + window.location.hash);
   return (
     <HashRouter>
-      <DebugRouter />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard profiles={profiles} />} />
