@@ -38,6 +38,29 @@
         <p style="color:#5C716A;font-family:sans-serif;font-size:11px;margin-top:8px;" id="load-status">JS yuklanmoqda...</p>
       </div>
     </div>
+    <div id="debug-log" style="position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow-y:auto;background:#0d1a12;color:#94A3A1;font-family:monospace;font-size:10px;padding:8px;z-index:99999;border-top:1px solid #1fc762;display:none;">
+      <b style="color:#1fc762;">Debug Log</b><br>
+    </div>
+    <script>
+      var _dl = document.getElementById('debug-log');
+      _dl.style.display = 'block';
+      window._dbg = function(msg) {
+        var p = document.createElement('div');
+        p.textContent = new Date().toISOString().slice(11,23) + ' ' + msg;
+        _dl.appendChild(p);
+        _dl.scrollTop = _dl.scrollHeight;
+      };
+      _dbg('HTML loaded');
+      _dbg('UA: ' + navigator.userAgent.slice(0, 80));
+      _dbg('TG obj: ' + (window.Telegram ? 'yes' : 'NO'));
+      _dbg('TG.WebApp: ' + (window.Telegram && window.Telegram.WebApp ? 'yes' : 'NO'));
+      if (window.Telegram && window.Telegram.WebApp) {
+        _dbg('initData len: ' + (window.Telegram.WebApp.initData || '').length);
+        _dbg('version: ' + window.Telegram.WebApp.version);
+        _dbg('platform: ' + (window.Telegram.WebApp.platform || 'unknown'));
+      }
+      _dbg('waiting for module script...');
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

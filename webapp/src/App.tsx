@@ -70,9 +70,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
 function AppContent() {
   const { t } = useTranslation();
+  if (window._dbg) window._dbg('AppContent rendering');
   const { user, profiles, loading, error, refreshProfiles, setProfiles } = useAuth();
 
   useEffect(() => {
+    if (window._dbg) window._dbg('AppContent mounted');
     tg.ready();
     tg.expand();
     if (tg.isVersionAtLeast("6.1")) {
@@ -89,6 +91,7 @@ function AppContent() {
   );
 
   if (loading) {
+    if (window._dbg) window._dbg('showing loading state');
     return (
       <div className="min-h-screen bg-[#122017] flex flex-col items-center justify-center">
         <div className="animate-pulse space-y-4 w-64">
@@ -104,6 +107,7 @@ function AppContent() {
   const errorToShow = error || (!user ? "Auth yakunlandi lekin foydalanuvchi topilmadi (no user after auth)" : null);
 
   if (errorToShow) {
+    if (window._dbg) window._dbg('showing error: ' + errorToShow);
     return (
       <div className="min-h-screen bg-[#122017] flex items-center justify-center px-6">
         <div className="text-center max-w-sm">

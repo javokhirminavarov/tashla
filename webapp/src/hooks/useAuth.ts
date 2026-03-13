@@ -23,8 +23,10 @@ export function useAuth() {
   useEffect(() => {
     async function init() {
       try {
+        if (window._dbg) window._dbg('auth: starting ping...');
         // Pre-check: can we reach the API at all?
         const reachable = await api.ping();
+        if (window._dbg) window._dbg('auth: ping result=' + reachable);
         if (!reachable) {
           setState((s) => ({
             ...s,
@@ -34,7 +36,9 @@ export function useAuth() {
           return;
         }
 
+        if (window._dbg) window._dbg('auth: calling api.auth()...');
         const data = await api.auth();
+        if (window._dbg) window._dbg('auth: success, user=' + (data.user?.first_name || 'null'));
         setState({
           user: data.user,
           profiles: data.profiles,
