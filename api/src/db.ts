@@ -74,7 +74,8 @@ CREATE TABLE IF NOT EXISTS health_milestones (
     description_uz  TEXT NOT NULL,
     title_ru        TEXT,
     description_ru  TEXT,
-    icon            TEXT DEFAULT '✅'
+    icon            TEXT DEFAULT '✅',
+    UNIQUE(habit_type, hours_after)
 );
 
 CREATE TABLE IF NOT EXISTS quit_plans (
@@ -163,6 +164,12 @@ if (isSQLite) {
 
   // Create tables + seed on startup
   db.exec(SCHEMA_SQL);
+
+  // Remove duplicates from previous runs (before UNIQUE constraint existed)
+  db.exec(`DELETE FROM health_milestones WHERE id NOT IN (
+    SELECT MIN(id) FROM health_milestones GROUP BY habit_type, hours_after
+  )`);
+
   db.exec(SEED_SQL);
 
   queryFn = async (sql: string, params?: unknown[]): Promise<QueryResult> => {
@@ -204,10 +211,21 @@ if (isSQLite) {
   const pgSchema = convertSchemaToPg(SCHEMA_SQL);
   await pool.query(pgSchema);
 
+  // Remove duplicates from previous runs (before UNIQUE constraint existed)
+  try {
+    await pool.query(`DELETE FROM health_milestones WHERE id NOT IN (
+      SELECT MIN(id) FROM health_milestones GROUP BY habit_type, hours_after
+    )`);
+    // Add UNIQUE constraint if it doesn't exist yet (for existing databases)
+    await pool.query(`ALTER TABLE health_milestones ADD CONSTRAINT health_milestones_habit_hours_unique UNIQUE (habit_type, hours_after)`);
+  } catch {
+    // Constraint may already exist
+  }
+
   // Seed milestones — convert SQLite "INSERT OR IGNORE" to pg "ON CONFLICT DO NOTHING"
   const pgSeed = SEED_SQL
     .replace("INSERT OR IGNORE INTO", "INSERT INTO")
-    .replace(/;\s*$/, " ON CONFLICT DO NOTHING;");
+    .replace(/;\s*$/, " ON CONFLICT (habit_type, hours_after) DO NOTHING;");
   try {
     await pool.query(pgSeed);
   } catch {
