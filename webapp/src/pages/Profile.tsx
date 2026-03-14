@@ -34,6 +34,8 @@ export default function Profile({
   const [weeklySummary, setWeeklySummary] = useState(true);
   const [quitPlans, setQuitPlans] = useState<QuitPlan[]>([]);
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
+  const [confirmStopPlan, setConfirmStopPlan] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<HabitType | null>(null);
 
   useEffect(() => {
     api.getQuitPlans().then(setQuitPlans).catch(console.error);
@@ -298,16 +300,38 @@ export default function Profile({
                         </span>
                       </div>
                     )}
-                    <button
-                      onClick={async () => {
-                        haptic("heavy");
-                        await api.deleteQuitPlan(plan.habit_type);
-                        setQuitPlans((prev) => prev.filter((p) => p.id !== plan.id));
-                      }}
-                      className="text-xs text-danger font-medium active:scale-[0.97] transition-transform duration-100"
-                    >
-                      {t("quitPlan.stopPlan")}
-                    </button>
+                    {confirmStopPlan === plan.id ? (
+                      <div className="mt-2 bg-danger/5 border border-danger/20 rounded-xl p-3 space-y-2">
+                        <p className="text-sm font-semibold text-danger">{t("quitPlan.confirmStopTitle")}</p>
+                        <p className="text-xs text-text-secondary">{t("quitPlan.confirmStopMessage")}</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async () => {
+                              haptic("heavy");
+                              await api.deleteQuitPlan(plan.habit_type);
+                              setQuitPlans((prev) => prev.filter((p) => p.id !== plan.id));
+                              setConfirmStopPlan(null);
+                            }}
+                            className="flex-1 py-2 bg-danger text-[#F1F5F2] rounded-xl text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
+                          >
+                            {t("quitPlan.confirmStop")}
+                          </button>
+                          <button
+                            onClick={() => setConfirmStopPlan(null)}
+                            className="flex-1 py-2 bg-bg-surface text-text-secondary rounded-xl text-sm font-medium active:scale-[0.97] transition-transform duration-100"
+                          >
+                            {t("common.cancel")}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => { haptic("light"); setConfirmStopPlan(plan.id); }}
+                        className="text-sm text-danger font-medium border border-danger/20 bg-danger/5 rounded-xl px-4 py-2 active:scale-[0.97] transition-transform duration-100"
+                      >
+                        {t("quitPlan.stopPlanFull")}
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -436,7 +460,7 @@ export default function Profile({
                       </span>
                     </button>
                     <button
-                      onClick={() => handleDelete(ht)}
+                      onClick={() => { haptic("light"); setConfirmDelete(ht); }}
                       className="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center text-danger hover:bg-danger/20 transition-colors active:scale-[0.97] transition-transform duration-100"
                     >
                       <span className="material-symbols-outlined text-[20px]">
@@ -541,6 +565,35 @@ export default function Profile({
           TASHLA v1.0.0
         </div>
       </main>
+
+      {/* Delete confirmation overlay */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-bg-card rounded-2xl p-5 mx-5 max-w-sm w-full border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
+            <p className="text-lg font-semibold text-text-primary mb-2">{t("profile.deleteHabitTitle")}</p>
+            <p className="text-sm text-text-secondary mb-5">
+              {t("profile.deleteHabitMessage", { habit: t(`habits.${confirmDelete}`) })}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={async () => {
+                  await handleDelete(confirmDelete);
+                  setConfirmDelete(null);
+                }}
+                className="flex-1 py-3 bg-danger text-[#F1F5F2] rounded-xl text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
+              >
+                {t("profile.deleteHabitConfirm")}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 py-3 bg-bg-surface text-text-secondary rounded-xl text-sm font-medium active:scale-[0.97] transition-transform duration-100"
+              >
+                {t("common.cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <QuitPlanSheet
         open={planSheetOpen}

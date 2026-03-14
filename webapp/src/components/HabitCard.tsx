@@ -23,7 +23,7 @@ export default function HabitCard({
   return (
     <button
       onClick={onSelect}
-      className={`flex-1 min-w-[100px] bg-bg-surface rounded-2xl p-4 flex flex-col items-center gap-1 border shadow-card transition-all active:scale-[0.97] transition-transform duration-100 ${
+      className={`flex-1 min-w-[100px] bg-bg-surface rounded-xl p-4 flex flex-col items-center gap-1 border shadow-card transition-all active:scale-[0.97] transition-transform duration-100 ${
         selected
           ? "border-brand/50 ring-1 ring-brand/30"
           : "border-white/[0.06]"

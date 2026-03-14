@@ -49,7 +49,9 @@
       "Bash(cat:*)",
       "Bash(find /d/projects/tashla/webapp -type f -name \"*.env*\" -o -name \".env*\" 2>/dev/null | head -20)",
       "Bash(find /d/projects/tashla/webapp -maxdepth 2 -type f \\\\\\( -name \"Dockerfile*\" -o -name \"nginx*\" -o -name \"railway.json\" -o -name \"nixpacks.toml\" \\\\\\) 2>/dev/null | head -20)",
-      "Bash(find /d/projects/tashla -name \".env*\" -type f 2>/dev/null | head -20)"
+      "Bash(find /d/projects/tashla -name \".env*\" -type f 2>/dev/null | head -20)",
+      "Bash(find:*)",
+      "Bash(git log:*)"
     ]
   }
 }

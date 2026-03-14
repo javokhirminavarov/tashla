@@ -2,11 +2,10 @@
 
 ## Project Overview
 
-TASHLA ("Quit" in Uzbek) is a Telegram Mini App that helps Uzbek users track and quit three habits: sigaret (cigarettes), nos (nasvay), and alkogol (alcohol). The app consists of three parts:
+TASHLA ("Quit" in Uzbek) is a Telegram Mini App that helps Uzbek users track and quit three habits: sigaret (cigarettes), nos (nasvay), and alkogol (alcohol). The app consists of two parts:
 
-1. **bot/** — Telegram bot (grammy). `/start` command, opens Mini App, sends push notifications.
-2. **api/** — Express REST API. Auth, logging, stats, health milestones, quit plans, community groups, cron jobs.
-3. **webapp/** — React Mini App (Vite + Tailwind). Opens inside Telegram. All user-facing UI lives here.
+1. **api/** — Express REST API + Telegram bot (grammy). Auth, logging, stats, health milestones, quit plans, community groups, cron jobs, webhook-based bot.
+2. **webapp/** — React Mini App (Vite + Tailwind). Opens inside Telegram. All user-facing UI lives here.
 
 ---
 
@@ -30,34 +29,27 @@ TASHLA ("Quit" in Uzbek) is a Telegram Mini App that helps Uzbek users track and
 ```
 tashla/
 ├── CLAUDE.md              # This file
-│
-├── bot/
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── src/
-│   │   └── index.ts       # Bot entry: /start command + webapp menu button
-│   └── .env.example       # BOT_TOKEN, WEBAPP_URL
+├── TASHLA_PROJECT_KNOWLEDGE.md  # Business context & product knowledge
+├── package.json           # Root: dev (concurrently api+webapp), build, start
 │
 ├── api/
 │   ├── package.json
 │   ├── tsconfig.json
+│   ├── Dockerfile         # Multi-stage Node.js build for Railway
 │   ├── src/
-│   │   ├── index.ts       # Express app entry, cors, json parsing
-│   │   ├── db.ts          # Dual-driver DB abstraction (SQLite dev / PostgreSQL prod)
+│   │   ├── index.ts       # Express app entry, cors, json parsing, bot webhook
+│   │   ├── db.ts          # Dual-driver DB abstraction + embedded schema (no separate migrations)
 │   │   ├── auth.ts        # Telegram initData validation middleware
-│   │   ├── migrate.ts     # Migration runner
+│   │   ├── bot.ts         # Telegram bot (grammy), webhook-based, /start command + menu button
 │   │   ├── cron.ts        # Node-cron jobs: notifications + quit plan step transitions
 │   │   ├── routes/
 │   │   │   ├── auth.ts    # POST /api/auth — validate + upsert user
-│   │   │   ├── profiles.ts # GET/POST/DELETE habit profiles
+│   │   │   ├── profiles.ts # GET/POST/DELETE/PATCH habit profiles + user settings
 │   │   │   ├── logs.ts    # POST log, DELETE last, GET today, GET daily
 │   │   │   ├── health.ts  # GET milestones with unlock status
 │   │   │   ├── stats.ts   # GET money saved + streak
 │   │   │   ├── groups.ts  # Community groups CRUD + member ops
-│   │   │   └── quit-plan.ts # Quit plan CRUD + step transitions
-│   │   └── migrations/
-│   │       ├── 001_tables.sql     # Core tables (users, habit_profiles, usage_logs, health_milestones)
-│   │       └── 002_seed.sql       # Health milestones data (22 rows)
+│   │   │   └── quit-plan.ts # Quit plan CRUD + adjust speed
 │   └── .env.example       # DATABASE_URL, BOT_TOKEN
 │
 ├── webapp/
@@ -68,6 +60,9 @@ tashla/
 │   ├── tailwind.config.js
 │   ├── postcss.config.js
 │   ├── index.html
+│   ├── Dockerfile         # Multi-stage nginx build for Railway
+│   ├── nginx.conf.template # SPA routing config with ${PORT} substitution
+│   ├── .env.production    # Production VITE_API_URL
 │   ├── src/
 │   │   ├── main.tsx        # React entry
 │   │   ├── App.tsx         # Router: /, /stats, /health, /community, /profile, /group/:id
@@ -182,7 +177,7 @@ data_check_string is all initData params (except hash) sorted alphabetically, jo
 
 ## Database Schema
 
-9 tables. Core schema in `api/src/migrations/001_tables.sql`. Post-MVP additions via subsequent migrations.
+9 tables. Schema embedded in `api/src/db.ts` (created on startup, no separate migration files).
 
 **Core tables:**
 - **users** — telegram_id, first_name, username, language ('uz'|'ru'), notifications_enabled, notification_time, timezone, weekly_summary, created_at
@@ -191,12 +186,10 @@ data_check_string is all initData params (except hash) sorted alphabetically, jo
 - **health_milestones** — habit_type, hours_after, title_uz, description_uz, title_ru, description_ru, icon (seeded, read-only)
 
 **Post-MVP tables:**
-- **quit_plans** — user_id, habit_type, speed ('slow'|'medium'|'fast'), created_at
-- **quit_plan_steps** — plan_id, step_number, step_name, daily_limit, start_date, end_date, status
+- **quit_plans** — user_id, habit_type, start_limit, target_limit (default 0), reduction_percent (default 15), step_duration_days (default 7), current_step (default 1), is_active (default 1), started_at
+- **quit_plan_steps** — plan_id, step_number, daily_limit, start_date, end_date, status (default 'upcoming')
 - **groups** — invite_code, name, created_by, created_at
 - **group_members** — group_id, user_id, hide_alkogol, joined_at
-
-**Migrations:** 001_tables.sql → 002_seed.sql → 003_i18n.sql → 004_notifications.sql → 005_quit_plans.sql → 006_community.sql
 
 Key constraint: UNIQUE(user_id, habit_type) on habit_profiles.
 Key index: (user_id, habit_type, logged_at DESC) on usage_logs.
@@ -213,6 +206,8 @@ GET    /api/profiles           → { data: HabitProfile[] }
 POST   /api/profiles           Body: { habit_type, daily_baseline, daily_limit?, cost_per_unit? }
                                → Upsert profile, return { data: HabitProfile }
 DELETE /api/profiles/:habitType → Soft delete (is_active=false)
+PATCH  /api/profiles/me        Body: { language: 'uz'|'ru' }  → Update user language
+PATCH  /api/profiles/me/notifications  Body: { notifications_enabled?, notification_time?, weekly_summary? }
 
 POST   /api/logs               Body: { habit_type, quantity?: number }
                                → Insert log, return { data: { today_count } }
@@ -224,19 +219,23 @@ GET    /api/logs/daily?days=7  → { data: [ { date, sigaret: 12, nos: 5, alkogo
 GET    /api/health/:habitType  → { data: { last_log_at, hours_since, milestones: [...] } }
 
 GET    /api/stats/money        → { data: { today: {...}, total: {...} } }
-GET    /api/stats/streak       → { data: { sigaret: 3, nos: 7, alkogol: 0 } }  (consecutive zero-use days)
+GET    /api/stats/streak       → { data: { sigaret: 3, nos: 7, alkogol: 0 } }
+                               (consecutive days within daily_limit, last 90 days)
 
-POST   /api/quit-plan          Body: { habit_type, speed }  → Create adaptive quit plan
+POST   /api/quit-plan          Body: { habit_type, start_limit, target_limit?, reduction_percent?, step_duration_days? }
+                               → Create plan + generate steps
+GET    /api/quit-plan          → List all active plans with steps
 GET    /api/quit-plan/:habitType → Get plan with steps
-PUT    /api/quit-plan/:habitType → Update plan
-DELETE /api/quit-plan/:habitType → Delete plan
+DELETE /api/quit-plan/:habitType → Deactivate plan (is_active=0)
+POST   /api/quit-plan/:habitType/adjust  Body: { direction: "faster"|"slower" }
+                               → Adjust reduction_percent ±5 (range 5–30), regenerate future steps
 
 POST   /api/groups             Body: { name }  → Create group with invite code
 GET    /api/groups             → List user's groups
 POST   /api/groups/join        Body: { invite_code }  → Join group
-GET    /api/groups/:groupId    → Group details + member progress
-DELETE /api/groups/:groupId    → Leave/delete group
-PUT    /api/groups/:groupId/privacy  Body: { hide_alkogol }  → Toggle privacy
+GET    /api/groups/:id         → Group details + member progress, scores, streaks
+DELETE /api/groups/:id/leave   → Leave group (auto-deletes if empty)
+PATCH  /api/groups/:id/privacy Body: { hide_alkogol }  → Toggle privacy
 
 GET    /api/ping               → { status: "ok" }  (health check, no auth)
 ```
@@ -340,21 +339,17 @@ function App() {
 
 ## Environment Variables
 
-### bot/.env
-```
-BOT_TOKEN=your_bot_token_from_botfather
-WEBAPP_URL=https://tashla-webapp.up.railway.app
-```
-
 ### api/.env
 ```
 DATABASE_URL=sqlite:tashla.db          # Local dev (SQLite)
 # DATABASE_URL=postgresql://user:pass@host:5432/tashla  # Production (PostgreSQL)
 BOT_TOKEN=your_bot_token_from_botfather
 PORT=3000
-WEBAPP_URL=http://localhost:5173
+WEBAPP_URL=http://localhost:3000
+WEBAPP_DIR=../webapp/dist
 DEV_MODE=true                          # Skips Telegram initData validation
 DEV_TELEGRAM_ID=123456789              # Fake user ID for dev mode
+RAILWAY_PUBLIC_DOMAIN=                 # Set by Railway, used for webhook URL
 ```
 
 ### webapp/.env
@@ -885,28 +880,30 @@ Before committing any UI code, verify ALL of these:
 
 ---
 
-## Current Project Status (as of 2026-03-09)
+## Current Project Status (as of 2026-03-14)
 
 ### Completed
 - All project scaffolding, TypeScript configs, and dependencies installed
-- Database: 6 migration files, 9 tables, SQLite dev DB operational
+- Database: 9 tables, schema embedded in db.ts, SQLite dev DB operational
 - API: all endpoints implemented (auth, profiles, logs, health, stats, streak, quit-plan, groups, ping)
-- API: cron.ts handles push notifications (4 types) + quit plan step transitions
-- Bot: grammy with /start + WebApp menu button + notification sending
+- API: cron.ts handles push notifications (5 cron jobs) + quit plan step transitions
+- Bot: consolidated into api/src/bot.ts, webhook-based (not polling), /start + menu button
 - Webapp: 7 pages (Onboarding, Dashboard, Stats, Health, Profile, Community, GroupDetail)
 - Webapp: 12 components, 3 hooks, 4 lib modules, i18n (uz/ru)
 - Dev mode with SQLite + bypassed auth for local testing
+- Dockerfiles for both api/ and webapp/ (Railway-ready)
+- TASHLA_PROJECT_KNOWLEDGE.md for business context
+- 49+ git commits on main branch
 
 ### Post-MVP Features Implemented
 1. **i18n** — uz/ru locales, auto-detect from Telegram, language selector in Profile
-2. **Streak counter** — consecutive zero-use days, displayed on Dashboard
-3. **Push notifications** — 4 types via grammy + node-cron, settings in Profile
-4. **Adaptive quit plans** — 3 speed presets, step progression, Dashboard progress card
-5. **Community/friends** — groups with invite codes, member progress, alkogol privacy toggle, 4th nav tab
+2. **Streak counter** — consecutive days within daily_limit (last 90 days), displayed on Dashboard
+3. **Push notifications** — 5 cron jobs via grammy + node-cron, settings in Profile
+4. **Adaptive quit plans** — configurable reduction_percent + step_duration_days, adjust speed (faster/slower), Dashboard progress card
+5. **Community/friends** — groups with invite codes, member progress with scores, alkogol privacy toggle, 4th nav tab
 
 ### Remaining (Deployment)
-- Deploy API to Railway with PostgreSQL
-- Deploy bot to Railway
-- Deploy webapp (Railway / Vercel / Netlify)
+- Deploy API + bot to Railway with PostgreSQL
+- Deploy webapp to Railway (nginx-based Docker)
 - Configure BotFather Mini App URL
 - End-to-end testing in real Telegram client

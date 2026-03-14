@@ -102,6 +102,7 @@ export default function WeeklyChart({
                 fill={color}
                 fillOpacity={0.15}
                 stroke="none"
+                tooltipType="none"
               />
             );
           })}

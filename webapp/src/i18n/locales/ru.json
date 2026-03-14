@@ -110,7 +110,10 @@
     "weeklySummary": "Еженедельная сводка",
     "quitPlan": "План снижения",
     "addHabit": "Добавить привычку",
-    "addHabitHint": "Начните отслеживать новую привычку"
+    "addHabitHint": "Начните отслеживать новую привычку",
+    "deleteHabitTitle": "Удалить привычку",
+    "deleteHabitMessage": "Привычка {{habit}} и все связанные данные будут удалены. Это действие нельзя отменить.",
+    "deleteHabitConfirm": "Удалить"
   },
   "bottomSheet": {
     "title": "Что вы записали?"
@@ -146,7 +149,8 @@
     "reduction": "Снижение",
     "copied": "Скопировано!",
     "joined": "Вы присоединились!",
-    "invalidCode": "Неверный код"
+    "invalidCode": "Неверный код",
+    "motivation": "Бросать вместе с друзьями легче! Создайте группу и поделитесь кодом приглашения."
   },
   "quitPlan": {
     "title": "План снижения",
@@ -162,6 +166,10 @@
     "nextStep": "Следующий",
     "daysLeft": "через {{days}} дней",
     "stopPlan": "Остановить",
+    "stopPlanFull": "Остановить план",
+    "confirmStopTitle": "Остановить план",
+    "confirmStopMessage": "Вы уверены, что хотите остановить план снижения?",
+    "confirmStop": "Да, остановить",
     "changePlan": "Изменить режим",
     "planProgress": "План снижения: {{step}}-й этап",
     "currentLimitLabel": "Текущий лимит: {{current}} | Следующий: {{next}} (через {{days}} дней)",

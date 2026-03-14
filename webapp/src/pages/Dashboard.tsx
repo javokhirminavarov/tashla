@@ -87,7 +87,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center px-6">
         {/* Hero Progress Ring */}
-        <div className="mt-6 mb-8 flex flex-col items-center justify-center">
+        <div className="mt-4 mb-6 flex flex-col items-center justify-center">
           <CircularProgress
             current={selectedCount}
             max={selectedLimit}
@@ -104,7 +104,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
 
         {/* Habit Strip */}
         {profiles.length > 1 && (
-          <div className="w-full flex gap-3 mb-8 overflow-x-auto py-1">
+          <div className="w-full flex gap-3 mb-4 overflow-x-auto py-1">
             {profiles.map((profile) => (
               <HabitCard
                 key={profile.habit_type}
@@ -147,15 +147,15 @@ export default function Dashboard({ profiles }: DashboardProps) {
           );
         })()}
 
-        {/* Log Button */}
-        <button
-          onClick={handleLog}
-          className="mt-8 w-full min-h-[56px] bg-[#1fc762] hover:bg-[#17a34a] text-[#0d1a12] font-semibold text-sm tracking-wide py-4 px-6 rounded-2xl shadow-[0_0_20px_rgba(31,199,98,0.3)] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a]"
-        >
-          <span className="material-symbols-outlined text-[20px]">add</span>
-          <span className="text-lg">{t("dashboard.log")}</span>
-        </button>
       </main>
+
+      {/* FAB */}
+      <button
+        onClick={handleLog}
+        className="fixed bottom-24 right-5 z-[45] w-14 h-14 rounded-full bg-[#1fc762] flex items-center justify-center shadow-[0_0_20px_rgba(31,199,98,0.3)] transition-transform duration-150 active:scale-[0.95]"
+      >
+        <span className="material-symbols-outlined text-[24px] text-[#0d1a12]">add</span>
+      </button>
 
       {/* Bottom sheet for multi-habit logging */}
       <BottomSheet

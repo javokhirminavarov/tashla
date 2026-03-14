@@ -111,7 +111,7 @@ export default function Stats({ profiles }: StatsProps) {
         ) : (
           <>
             {/* Summary Hero Card */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-6 shadow-soft shadow-brand/30">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-4 shadow-soft shadow-brand/30">
               <div className="absolute right-0 top-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
               <div className="relative z-10">
@@ -130,7 +130,7 @@ export default function Stats({ profiles }: StatsProps) {
                     ? t("stats.good")
                     : t("stats.keepGoing")}
                 </h2>
-                <p className="text-sm text-[#F1F5F2]/80 mb-6">
+                <p className="text-sm text-[#F1F5F2]/80 mb-3">
                   {t("stats.completionMessage", { period: periodLabel, pct: overallPct })}
                 </p>
 

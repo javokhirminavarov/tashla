@@ -110,7 +110,10 @@
     "weeklySummary": "Haftalik xulosa",
     "quitPlan": "Kamaytirish rejasi",
     "addHabit": "Odat qo'shish",
-    "addHabitHint": "Yangi odatni kuzatishni boshlang"
+    "addHabitHint": "Yangi odatni kuzatishni boshlang",
+    "deleteHabitTitle": "Odatni o'chirish",
+    "deleteHabitMessage": "{{habit}} odati va unga oid barcha ma'lumotlar o'chiriladi. Bu amalni qaytarib bo'lmaydi.",
+    "deleteHabitConfirm": "O'chirish"
   },
   "bottomSheet": {
     "title": "Nimani yozdingiz?"
@@ -146,7 +149,8 @@
     "reduction": "Kamayish",
     "copied": "Nusxa olindi!",
     "joined": "Qo'shildingiz!",
-    "invalidCode": "Noto'g'ri kod"
+    "invalidCode": "Noto'g'ri kod",
+    "motivation": "Do'stlaringiz bilan birga tashlash osonroq! Guruh yarating va taklif kodini ulashing."
   },
   "quitPlan": {
     "title": "Kamaytirish rejasi",
@@ -162,6 +166,10 @@
     "nextStep": "Keyingi",
     "daysLeft": "{{days}} kundan keyin",
     "stopPlan": "To'xtatish",
+    "stopPlanFull": "Rejani to'xtatish",
+    "confirmStopTitle": "Rejani to'xtatish",
+    "confirmStopMessage": "Rostdan kamaytirish rejasini to'xtatmoqchimisiz?",
+    "confirmStop": "Ha, to'xtatish",
     "changePlan": "Rejimni o'zgartirish",
     "planProgress": "Kamaytirish rejasi: {{step}}-bosqich",
     "currentLimitLabel": "Hozirgi limit: {{current}} | Keyingi: {{next}} ({{days}} kundan keyin)",

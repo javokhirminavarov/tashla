@@ -96,6 +96,15 @@ export default function Community() {
                 </span>
               </button>
             ))}
+
+            {groups.length < 3 && (
+              <div className="flex flex-col items-center py-6 text-center">
+                <span className="material-symbols-outlined text-[28px] text-[#5C716A] mb-2">
+                  diversity_3
+                </span>
+                <p className="text-sm text-[#94A3A1]">{t("community.motivation")}</p>
+              </div>
+            )}
           </div>
         )}
       </main>
