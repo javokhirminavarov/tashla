@@ -46,7 +46,15 @@ router.get("/money", authMiddleware, async (req, res) => {
       [req.user.id]
     );
 
-    // Build total saved per habit
+    // Group daily results by date+habit
+    const dailyMap: Record<string, Record<string, number>> = {};
+    for (const row of dailyResult.rows) {
+      const date = String(row.date);
+      if (!dailyMap[date]) dailyMap[date] = {};
+      dailyMap[date][row.habit_type as string] = Number(row.count);
+    }
+
+    // Build today + total saved per habit in a single loop
     const totalSaved: Record<string, number> = {};
     const todaySaved: Record<string, number> = {};
 
@@ -57,24 +65,9 @@ router.get("/money", authMiddleware, async (req, res) => {
 
       // Today saved
       const todayCount = todayCounts[ht] || 0;
-      const savedToday = Math.max(0, baseline - todayCount) * cost;
-      todaySaved[ht] = savedToday;
+      todaySaved[ht] = Math.max(0, baseline - todayCount) * cost;
 
-    }
-
-    // Group daily results by date+habit
-    const dailyMap: Record<string, Record<string, number>> = {};
-    for (const row of dailyResult.rows) {
-      const date = String(row.date);
-      if (!dailyMap[date]) dailyMap[date] = {};
-      dailyMap[date][row.habit_type as string] = Number(row.count);
-    }
-
-    for (const profile of profiles.rows) {
-      const ht = profile.habit_type as string;
-      const baseline = Number(profile.daily_baseline);
-      const cost = Number(profile.cost_per_unit);
-
+      // Total saved across all days
       let total = 0;
       for (const dateData of Object.values(dailyMap)) {
         const dayCount = dateData[ht] || 0;

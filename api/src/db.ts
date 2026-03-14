@@ -151,7 +151,6 @@ function convertSchemaToPg(sql: string): string {
   return sql
     .replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, "SERIAL PRIMARY KEY")
     .replace(/datetime\('now'\)/g, "NOW()")
-    .replace(/\bTEXT\b/g, "TEXT")
     .replace(/\bREAL\b/g, "DOUBLE PRECISION");
 }
 

@@ -3,17 +3,11 @@ import { useTranslation } from "react-i18next";
 import WeeklyChart from "../components/WeeklyChart";
 import { api } from "../lib/api";
 import type { HabitProfile, DailyEntry, HabitType } from "../lib/types";
-import { HABIT_COLORS } from "../lib/types";
+import { HABIT_COLORS, HABIT_MATERIAL_ICONS } from "../lib/types";
 
 interface StatsProps {
   profiles: HabitProfile[];
 }
-
-const HABIT_MATERIAL_ICONS: Record<HabitType, string> = {
-  sigaret: "smoking_rooms",
-  nos: "science",
-  alkogol: "local_bar",
-};
 
 export default function Stats({ profiles }: StatsProps) {
   const { t } = useTranslation();

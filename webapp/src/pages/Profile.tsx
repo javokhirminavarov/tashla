@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { haptic, tg } from "../lib/telegram";
-import { HABIT_COLORS } from "../lib/types";
+import { HABIT_COLORS, HABIT_MATERIAL_ICONS } from "../lib/types";
 import type { User, HabitProfile, HabitType, QuitPlan } from "../lib/types";
 import { api } from "../lib/api";
 import QuitPlanSheet from "../components/QuitPlanSheet";
@@ -12,12 +12,6 @@ interface ProfileProps {
   profiles: HabitProfile[];
   refreshProfiles: () => Promise<void>;
 }
-
-const HABIT_MATERIAL_ICONS: Record<HabitType, string> = {
-  sigaret: "smoking_rooms",
-  nos: "science",
-  alkogol: "local_bar",
-};
 
 const ALL_HABITS: HabitType[] = ["sigaret", "nos", "alkogol"];
 

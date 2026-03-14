@@ -130,8 +130,8 @@ export const HABIT_COLORS: Record<HabitType, string> = {
   alkogol: "#3B82F6",
 };
 
-export const HABIT_UNITS: Record<HabitType, string> = {
-  sigaret: "dona",
-  nos: "dona",
-  alkogol: "dona",
+export const HABIT_MATERIAL_ICONS: Record<HabitType, string> = {
+  sigaret: "smoking_rooms",
+  nos: "science",
+  alkogol: "local_bar",
 };

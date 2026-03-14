@@ -9,7 +9,7 @@ import statRoutes from "./routes/stats.js";
 import quitPlanRoutes from "./routes/quit-plan.js";
 import groupRoutes from "./routes/groups.js";
 import { startCronJobs } from "./cron.js";
-import { startBot, stopBot, getBot, getBotWebhookCallback, getWebhookPath } from "./bot.js";
+import { startBot, stopBot, getBotWebhookCallback, getWebhookPath } from "./bot.js";
 
 // Global error handlers — ensure crashes produce visible logs
 process.on("unhandledRejection", (reason) => {
@@ -33,23 +33,6 @@ app.use(express.json());
 // Health check
 app.get("/api/ping", (_req, res) => {
   res.json({ data: "pong" });
-});
-
-// Debug endpoint — diagnose deployment issues (no secrets exposed)
-app.get("/api/debug", (_req, res) => {
-  const botToken = (process.env.BOT_TOKEN || "").trim();
-  res.json({
-    data: {
-      env: {
-        BOT_TOKEN: botToken ? `present (len=${botToken.length}, ${botToken.slice(0, 4)}...${botToken.slice(-4)})` : "MISSING",
-        DATABASE_URL: process.env.DATABASE_URL ? "present" : "MISSING",
-        DEV_MODE: process.env.DEV_MODE || "not set",
-        WEBAPP_URL: process.env.WEBAPP_URL || "not set",
-        PORT: process.env.PORT || "not set",
-        NODE_ENV: process.env.NODE_ENV || "not set",
-      },
-    },
-  });
 });
 
 // API routes
