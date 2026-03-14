@@ -108,7 +108,9 @@
     "notificationsEnabled": "Уведомления включены",
     "notificationTime": "Время уведомлений",
     "weeklySummary": "Еженедельная сводка",
-    "quitPlan": "План снижения"
+    "quitPlan": "План снижения",
+    "addHabit": "Добавить привычку",
+    "addHabitHint": "Начните отслеживать новую привычку"
   },
   "bottomSheet": {
     "title": "Что вы записали?"
@@ -139,6 +141,9 @@
     "showAlkogol": "Показать алкоголь",
     "hidden": "скрыто",
     "streak": "серия",
+    "leaderboard": "Рейтинг",
+    "score": "Балл",
+    "reduction": "Снижение",
     "copied": "Скопировано!",
     "joined": "Вы присоединились!",
     "invalidCode": "Неверный код"

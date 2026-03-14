@@ -3,9 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { haptic, tg } from "../lib/telegram";
 import { api } from "../lib/api";
-import { HABIT_ICONS } from "../lib/types";
-import { getZoneColor } from "../lib/colors";
-import type { GroupDetail as GroupDetailType } from "../lib/types";
+import { HABIT_ICONS, HABIT_COLORS } from "../lib/types";
+import type { GroupDetail as GroupDetailType, HabitType } from "../lib/types";
+
+const RANK_COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"];
 
 export default function GroupDetail() {
   const { t } = useTranslation();
@@ -94,58 +95,84 @@ export default function GroupDetail() {
           </button>
         </div>
 
-        {/* Members list */}
+        {/* Leaderboard */}
         <h2 className="font-semibold text-text-secondary text-sm px-1">
-          {group.members.length} {t("community.members")}
+          {t("community.leaderboard")} · {group.members.length} {t("community.members")}
         </h2>
 
         <div className="space-y-3">
-          {group.members.map((member) => {
+          {group.members.map((member, index) => {
+            const rank = index + 1;
+            const isTop3 = rank <= 3;
+            const rankColor = isTop3 ? RANK_COLORS[rank - 1] : undefined;
             const habits = Object.keys(member.limits);
+
             return (
               <div
                 key={member.user_id}
-                className="bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06]"
+                className={`bg-bg-card rounded-2xl p-4 shadow-card border ${
+                  rank === 1
+                    ? "border-[#FFD700]/20 shadow-[0_0_20px_rgba(255,215,0,0.08)]"
+                    : "border-white/[0.06]"
+                }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center text-brand">
-                      <span className="material-symbols-outlined text-[18px]">person</span>
-                    </div>
-                    <span className="font-semibold text-text-primary text-sm">
-                      {member.first_name}
+                <div className="flex items-center gap-3 mb-3">
+                  {/* Rank badge */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                    style={
+                      isTop3
+                        ? { backgroundColor: rankColor + "20", color: rankColor }
+                        : { backgroundColor: "rgba(255,255,255,0.05)", color: "#5C716A" }
+                    }
+                  >
+                    {rank}
+                  </div>
+
+                  {/* Name + score */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-text-primary text-sm truncate">
+                        {member.first_name}
+                      </span>
                       {member.is_self && (
-                        <span className="text-xs text-text-muted ml-1">(you)</span>
+                        <span className="text-[10px] text-brand bg-brand/10 px-1.5 py-0.5 rounded-full font-medium">
+                          you
+                        </span>
                       )}
-                    </span>
+                    </div>
+                    <p className="text-xs text-text-muted">
+                      {t("community.score")}: {member.overall_score}
+                    </p>
                   </div>
                 </div>
 
+                {/* Per-habit stats */}
                 <div className="flex gap-2 flex-wrap">
                   {habits.map((ht) => {
-                    const count = member.today[ht] ?? 0;
-                    const limit = member.limits[ht];
-                    const countColor = getZoneColor(count, limit);
+                    const reduction = member.reduction_pct[ht] ?? 0;
+                    const streak = member.streaks[ht] ?? 0;
 
                     return (
                       <div
                         key={ht}
                         className="flex items-center gap-1.5 bg-bg-surface rounded-xl px-3 py-2"
                       >
-                        <span className="text-sm">{HABIT_ICONS[ht as keyof typeof HABIT_ICONS]}</span>
-                        <span className="text-sm font-bold" style={{ color: countColor }}>
-                          {count}
+                        <span className="text-sm">{HABIT_ICONS[ht as HabitType]}</span>
+                        <span
+                          className="text-xs font-bold"
+                          style={{ color: HABIT_COLORS[ht as HabitType] }}
+                        >
+                          -{reduction}%
                         </span>
-                        <span className="text-xs text-text-muted">/ {limit}</span>
+                        {streak > 0 && (
+                          <span className="text-xs text-text-muted">
+                            🔥{streak}
+                          </span>
+                        )}
                       </div>
                     );
                   })}
-                  {!!member.hide_alkogol && !member.is_self && !member.today["alkogol"] && member.limits["alkogol"] === undefined && (
-                    <div className="flex items-center gap-1 bg-bg-surface rounded-xl px-3 py-2">
-                      <span className="text-sm">🍺</span>
-                      <span className="text-xs text-text-muted">{t("community.hidden")}</span>
-                    </div>
-                  )}
                 </div>
 
                 {/* Privacy toggle for self */}

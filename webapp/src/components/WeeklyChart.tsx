@@ -3,6 +3,7 @@ import {
   Area,
   ComposedChart,
   XAxis,
+  YAxis,
   ResponsiveContainer,
   ReferenceLine,
   Tooltip,
@@ -32,12 +33,11 @@ export default function WeeklyChart({
   days,
   habitType,
 }: WeeklyChartProps) {
-  // Fill in missing dates
+  // Fill in missing dates (use UTC to avoid timezone mismatch)
   const filledData: DailyEntry[] = [];
   const today = new Date();
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
+    const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - i));
     const dateStr = d.toISOString().split("T")[0];
     const existing = data.find((e) => e.date === dateStr);
     filledData.push({
@@ -49,8 +49,9 @@ export default function WeeklyChart({
   }
 
   const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr + "T00:00:00");
-    return UZ_DAYS_SHORT[d.getDay()];
+    const parts = dateStr.split("-");
+    const d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+    return UZ_DAYS_SHORT[d.getUTCDay()];
   };
 
   const activeHabits = habitType
@@ -64,7 +65,7 @@ export default function WeeklyChart({
   }
 
   return (
-    <div>
+    <div style={{ width: '100%', minHeight: 160 }}>
       <ResponsiveContainer width="100%" height={160}>
         <ComposedChart data={filledData}>
           <XAxis
@@ -75,6 +76,10 @@ export default function WeeklyChart({
             fontFamily="Lexend"
             tickLine={false}
             axisLine={false}
+          />
+          <YAxis
+            hide
+            domain={[0, (dataMax: number) => Math.max(dataMax, 1)]}
           />
           <Tooltip
             contentStyle={{

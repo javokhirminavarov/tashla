@@ -109,6 +109,13 @@ router.get("/:id", authMiddleware, async (req, res) => {
     const dateExpr = isSQLite ? "date(logged_at)" : "logged_at::date";
     const dateNow = isSQLite ? "date('now')" : "CURRENT_DATE";
 
+    const dateOffset7 = isSQLite
+      ? "date('now', '-7 days')"
+      : "CURRENT_DATE - INTERVAL '7 days'";
+    const dateOffset90 = isSQLite
+      ? "date('now', '-90 days')"
+      : "CURRENT_DATE - INTERVAL '90 days'";
+
     const enrichedMembers = [];
     for (const member of members.rows) {
       const userId = Number(member.user_id);
@@ -130,7 +137,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
         todayCounts[ht] = Number(row.count);
       }
 
-      // Limits
+      // Profiles (baselines + limits)
       const profilesResult = await query(
         `SELECT habit_type, daily_limit, daily_baseline
          FROM habit_profiles
@@ -139,11 +146,102 @@ router.get("/:id", authMiddleware, async (req, res) => {
       );
 
       const limits: Record<string, number> = {};
+      const baselines: Record<string, number> = {};
       for (const row of profilesResult.rows) {
         const ht = row.habit_type as string;
         if (ht === "alkogol" && hideAlkogol && userId !== req.user.id) continue;
         limits[ht] = Number(row.daily_limit ?? row.daily_baseline);
+        baselines[ht] = Number(row.daily_baseline);
       }
+
+      // 7-day averages for reduction %
+      const avg7Result = await query(
+        `SELECT habit_type, COALESCE(AVG(daily_count), 0) as avg_count
+         FROM (
+           SELECT habit_type, ${dateExpr} as d, COALESCE(SUM(quantity), 0) as daily_count
+           FROM usage_logs
+           WHERE user_id = $1 AND ${dateExpr} >= ${dateOffset7}
+           GROUP BY habit_type, ${dateExpr}
+         ) sub
+         GROUP BY habit_type`,
+        [userId]
+      );
+
+      const reductionPct: Record<string, number> = {};
+      const avgByHabit: Record<string, number> = {};
+      for (const row of avg7Result.rows) {
+        const ht = row.habit_type as string;
+        if (ht === "alkogol" && hideAlkogol && userId !== req.user.id) continue;
+        const avg = Number(row.avg_count);
+        avgByHabit[ht] = avg;
+        const bl = baselines[ht];
+        if (bl && bl > 0) {
+          reductionPct[ht] = Math.round(Math.max(0, (1 - avg / bl) * 100));
+        } else {
+          reductionPct[ht] = 0;
+        }
+      }
+      // Fill habits with no logs in last 7 days as 100% reduction
+      for (const ht of Object.keys(baselines)) {
+        if (!(ht in reductionPct)) {
+          reductionPct[ht] = 100;
+        }
+      }
+
+      // Streaks (consecutive zero-use days, last 90 days)
+      const streakLogsResult = await query(
+        `SELECT ${dateExpr} as date, habit_type, COALESCE(SUM(quantity), 0) as count
+         FROM usage_logs
+         WHERE user_id = $1 AND ${dateExpr} >= ${dateOffset90}
+         GROUP BY ${dateExpr}, habit_type
+         ORDER BY ${dateExpr} DESC`,
+        [userId]
+      );
+
+      const dailyMap: Record<string, Record<string, number>> = {};
+      for (const row of streakLogsResult.rows) {
+        const date = String(row.date);
+        if (!dailyMap[date]) dailyMap[date] = {};
+        dailyMap[date][row.habit_type as string] = Number(row.count);
+      }
+
+      const streaks: Record<string, number> = {};
+      const nowDate = new Date();
+      const todayStr = nowDate.toISOString().split("T")[0];
+
+      for (const ht of Object.keys(baselines)) {
+        if (ht === "alkogol" && hideAlkogol && userId !== req.user.id) continue;
+        const limit = limits[ht] ?? baselines[ht];
+        let streak = 0;
+
+        const tc = dailyMap[todayStr]?.[ht] ?? 0;
+        if (tc > limit) {
+          streaks[ht] = 0;
+          continue;
+        }
+        if (tc > 0) streak = 1;
+
+        for (let d = 1; d <= 90; d++) {
+          const dd = new Date(nowDate);
+          dd.setDate(dd.getDate() - d);
+          const ds = dd.toISOString().split("T")[0];
+          const count = dailyMap[ds]?.[ht];
+          if (count === undefined) break;
+          if (count > limit) break;
+          streak++;
+        }
+        streaks[ht] = streak;
+      }
+
+      // Overall score
+      const habitTypes = Object.keys(baselines);
+      const avgReduction = habitTypes.length > 0
+        ? habitTypes.reduce((sum, ht) => sum + (reductionPct[ht] ?? 0), 0) / habitTypes.length
+        : 0;
+      const avgStreak = habitTypes.length > 0
+        ? habitTypes.reduce((sum, ht) => sum + Math.min(streaks[ht] ?? 0, 30), 0) / habitTypes.length
+        : 0;
+      const overallScore = Math.round(avgReduction * 0.6 + (avgStreak / 30) * 100 * 0.4);
 
       enrichedMembers.push({
         user_id: userId,
@@ -152,8 +250,15 @@ router.get("/:id", authMiddleware, async (req, res) => {
         is_self: userId === req.user.id,
         today: todayCounts,
         limits,
+        baselines,
+        streaks,
+        reduction_pct: reductionPct,
+        overall_score: overallScore,
       });
     }
+
+    // Sort by overall_score descending
+    enrichedMembers.sort((a, b) => b.overall_score - a.overall_score);
 
     res.json({
       data: {

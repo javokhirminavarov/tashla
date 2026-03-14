@@ -108,7 +108,9 @@
     "notificationsEnabled": "Eslatmalar yoqilgan",
     "notificationTime": "Eslatma vaqti",
     "weeklySummary": "Haftalik xulosa",
-    "quitPlan": "Kamaytirish rejasi"
+    "quitPlan": "Kamaytirish rejasi",
+    "addHabit": "Odat qo'shish",
+    "addHabitHint": "Yangi odatni kuzatishni boshlang"
   },
   "bottomSheet": {
     "title": "Nimani yozdingiz?"
@@ -139,6 +141,9 @@
     "showAlkogol": "Alkogolni ko'rsatish",
     "hidden": "yashirin",
     "streak": "streak",
+    "leaderboard": "Reyting",
+    "score": "Ball",
+    "reduction": "Kamayish",
     "copied": "Nusxa olindi!",
     "joined": "Qo'shildingiz!",
     "invalidCode": "Noto'g'ri kod"

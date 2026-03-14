@@ -98,6 +98,10 @@ export interface GroupMember {
   is_self: boolean;
   today: Record<string, number>;
   limits: Record<string, number>;
+  baselines: Record<string, number>;
+  streaks: Record<string, number>;
+  reduction_pct: Record<string, number>;
+  overall_score: number;
 }
 
 export interface GroupDetail {

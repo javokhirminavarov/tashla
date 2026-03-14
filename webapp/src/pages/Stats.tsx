@@ -22,7 +22,6 @@ export default function Stats({ profiles }: StatsProps) {
   const [loading, setLoading] = useState(true);
 
   const periods = [
-    { label: t("stats.day"), value: 1 },
     { label: t("stats.week"), value: 7 },
     { label: t("stats.month"), value: 30 },
   ];
@@ -80,7 +79,7 @@ export default function Stats({ profiles }: StatsProps) {
       : 0;
 
   const periodLabel =
-    days === 1 ? t("stats.periodToday") : days === 7 ? t("stats.periodWeek") : t("stats.periodMonth");
+    days === 7 ? t("stats.periodWeek") : t("stats.periodMonth");
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)]">
@@ -238,7 +237,7 @@ export default function Stats({ profiles }: StatsProps) {
                   </div>
 
                   {/* Chart */}
-                  <div className="mt-2 px-2">
+                  <div className="mt-2 px-2 min-w-0">
                     <WeeklyChart
                       data={data}
                       profiles={[p]}

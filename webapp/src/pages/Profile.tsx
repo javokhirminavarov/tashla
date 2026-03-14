@@ -19,6 +19,8 @@ const HABIT_MATERIAL_ICONS: Record<HabitType, string> = {
   alkogol: "local_bar",
 };
 
+const ALL_HABITS: HabitType[] = ["sigaret", "nos", "alkogol"];
+
 export default function Profile({
   user,
   profiles,
@@ -30,6 +32,9 @@ export default function Profile({
   const [baseline, setBaseline] = useState("");
   const [cost, setCost] = useState("");
   const [saving, setSaving] = useState(false);
+  const [addingHabit, setAddingHabit] = useState<HabitType | null>(null);
+  const [addBaseline, setAddBaseline] = useState("");
+  const [addCost, setAddCost] = useState("");
   const [notifEnabled, setNotifEnabled] = useState(true);
   const [notifTime, setNotifTime] = useState("21:00");
   const [weeklySummary, setWeeklySummary] = useState(true);
@@ -80,6 +85,35 @@ export default function Profile({
       setSaving(false);
     }
   };
+
+  const saveAddHabit = async () => {
+    if (!addingHabit) return;
+    const b = parseInt(addBaseline, 10);
+    if (!b || b <= 0) return;
+
+    setSaving(true);
+    haptic("medium");
+    try {
+      await api.createProfile({
+        habit_type: addingHabit,
+        daily_baseline: b,
+        daily_limit: b,
+        cost_per_unit: parseInt(addCost, 10) || 0,
+      });
+      await refreshProfiles();
+      setAddingHabit(null);
+      setAddBaseline("");
+      setAddCost("");
+    } catch (err) {
+      console.error("Failed to add habit:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const availableHabits = ALL_HABITS.filter(
+    (ht) => !profiles.some((p) => p.habit_type === ht)
+  );
 
   const handleDelete = async (ht: HabitType) => {
     haptic("heavy");
@@ -420,6 +454,92 @@ export default function Profile({
               );
             })}
           </div>
+
+          {/* Add new habit */}
+          {availableHabits.length > 0 && (
+            <div className="mt-4">
+              <p className="text-xs text-text-muted mb-2 px-1">
+                {t("profile.addHabitHint")}
+              </p>
+              {addingHabit ? (
+                <div className="bg-bg-card rounded-2xl p-5 space-y-4 shadow-card border border-white/[0.06]">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: HABIT_COLORS[addingHabit] + "20",
+                        color: HABIT_COLORS[addingHabit],
+                      }}
+                    >
+                      <span className="material-symbols-outlined">
+                        {HABIT_MATERIAL_ICONS[addingHabit]}
+                      </span>
+                    </div>
+                    <span className="font-semibold text-text-primary">
+                      {t(`habits.${addingHabit}`)}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-text-secondary mb-1.5 font-medium">
+                      {t("profile.dailyAmount")}
+                    </label>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={addBaseline}
+                      onChange={(e) => setAddBaseline(e.target.value)}
+                      className="w-full h-11 bg-bg-surface border border-white/10 rounded-xl px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-text-secondary mb-1.5 font-medium">
+                      {t("profile.unitCost")}
+                    </label>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={addCost}
+                      onChange={(e) => setAddCost(e.target.value)}
+                      className="w-full h-11 bg-bg-surface border border-white/10 rounded-xl px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={saveAddHabit}
+                      disabled={saving}
+                      className="flex-1 h-11 bg-brand text-[#0d1a12] rounded-full font-semibold text-sm disabled:opacity-50 transition-all active:scale-[0.97]"
+                    >
+                      {saving ? "..." : t("common.save")}
+                    </button>
+                    <button
+                      onClick={() => { setAddingHabit(null); setAddBaseline(""); setAddCost(""); }}
+                      className="h-11 px-5 bg-bg-surface rounded-full text-sm text-text-secondary font-medium active:scale-[0.97] transition-transform duration-100"
+                    >
+                      {t("common.cancel")}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2 flex-wrap">
+                  {availableHabits.map((ht) => (
+                    <button
+                      key={ht}
+                      onClick={() => { haptic("light"); setAddingHabit(ht); }}
+                      className="flex items-center gap-2 min-h-[40px] px-4 rounded-full text-sm font-medium transition-all active:scale-[0.97] transition-transform duration-100 border"
+                      style={{
+                        backgroundColor: HABIT_COLORS[ht] + "15",
+                        color: HABIT_COLORS[ht],
+                        borderColor: HABIT_COLORS[ht] + "25",
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">add</span>
+                      {t(`habits.${ht}`)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* App version */}
