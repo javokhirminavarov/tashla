@@ -117,9 +117,9 @@ export default function Stats({ profiles }: StatsProps) {
 
         {loading ? (
           <div className="animate-pulse space-y-6">
-            <div className="h-48 bg-white/5 rounded-2xl" />
+            <div className="h-48 bg-white/5 rounded-xl" />
             <div className="h-6 bg-white/5 rounded-lg w-1/2" />
-            <div className="h-64 bg-white/5 rounded-2xl" />
+            <div className="h-64 bg-white/5 rounded-xl" />
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -145,7 +145,7 @@ export default function Stats({ profiles }: StatsProps) {
         ) : (
           <>
             {/* Summary Hero Card */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-4 shadow-soft shadow-brand/30">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-brand to-brand-dark p-4 shadow-soft shadow-brand/30">
               <div className="absolute right-0 top-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
               <div className="relative z-10">
@@ -203,9 +203,9 @@ export default function Stats({ profiles }: StatsProps) {
               return (
                 <div
                   key={ht}
-                  className="flex flex-col overflow-hidden rounded-2xl bg-bg-card shadow-card border border-white/[0.06]"
+                  className="flex flex-col overflow-hidden rounded-xl bg-bg-card shadow-card border border-white/[0.06]"
                 >
-                  <div className="p-5 pb-0">
+                  <div className="p-4 pb-0">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div

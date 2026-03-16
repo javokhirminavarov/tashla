@@ -107,13 +107,13 @@ export default function QuitPlanSheet({
         )}
 
         {/* Current limit display */}
-        <div className="bg-bg-surface rounded-2xl p-4 mb-4">
+        <div className="bg-bg-surface rounded-xl p-3.5 mb-4">
           <p className="text-xs text-text-muted mb-1">{t("quitPlan.currentLimit")}</p>
           <p className="text-2xl font-light tracking-tight text-text-primary">{startLimit} {t("common.piecesPerDay")}</p>
         </div>
 
         {/* Target limit */}
-        <div className="bg-bg-surface rounded-2xl p-4 mb-4">
+        <div className="bg-bg-surface rounded-xl p-3.5 mb-4">
           <p className="text-xs text-text-muted mb-2">{t("quitPlan.targetLimit")}</p>
           <div className="flex items-center justify-center gap-4">
             <button
@@ -140,7 +140,7 @@ export default function QuitPlanSheet({
               <button
                 key={opt.key}
                 onClick={() => { setSpeedIdx(i); haptic("light"); }}
-                className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
+                className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
                   speedIdx === i
                     ? "bg-brand/20 text-brand border-2 border-brand"
                     : "bg-bg-surface text-text-secondary border border-transparent"
@@ -153,7 +153,7 @@ export default function QuitPlanSheet({
         </div>
 
         {/* Preview */}
-        <div className="bg-brand/10 rounded-2xl p-4 mb-6 text-center">
+        <div className="bg-brand/10 rounded-xl p-3.5 mb-6 text-center">
           <p className="text-sm text-brand font-medium">
             {t("quitPlan.preview", { weeks })}
           </p>

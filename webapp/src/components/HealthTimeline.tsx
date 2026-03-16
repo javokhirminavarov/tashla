@@ -70,7 +70,7 @@ export default function HealthTimeline({
             {/* Content card */}
             <div className="flex-1">
               <div
-                className={`relative bg-bg-card rounded-2xl p-5 shadow-card border overflow-hidden ${
+                className={`relative bg-bg-card rounded-xl p-4 shadow-card border overflow-hidden ${
                   m.unlocked
                     ? "border-border milestone-unlocked"
                     : isInProgress

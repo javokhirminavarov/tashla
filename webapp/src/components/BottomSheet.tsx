@@ -66,7 +66,7 @@ export default function BottomSheet({
             return (
               <div
                 key={ht}
-                className="flex items-center justify-between bg-bg-surface rounded-2xl p-4"
+                className="flex items-center justify-between bg-bg-surface rounded-xl p-3.5"
               >
                 <div className="flex items-center gap-3">
                   <div

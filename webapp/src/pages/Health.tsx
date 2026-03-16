@@ -89,16 +89,16 @@ export default function Health({ profiles }: HealthProps) {
 
         {loading ? (
           <div className="animate-pulse space-y-6">
-            <div className="h-40 bg-white/5 rounded-2xl" />
+            <div className="h-40 bg-white/5 rounded-xl" />
             <div className="h-6 bg-white/5 rounded-lg w-1/3" />
-            <div className="h-32 bg-white/5 rounded-2xl" />
-            <div className="h-32 bg-white/5 rounded-2xl" />
-            <div className="h-32 bg-white/5 rounded-2xl" />
+            <div className="h-32 bg-white/5 rounded-xl" />
+            <div className="h-32 bg-white/5 rounded-xl" />
+            <div className="h-32 bg-white/5 rounded-xl" />
           </div>
         ) : healthData ? (
           <>
             {/* Summary Card */}
-            <div className="mb-8 bg-gradient-to-br from-brand to-brand-dark rounded-2xl p-6 shadow-lg shadow-brand/20 relative overflow-hidden">
+            <div className="mb-8 bg-gradient-to-br from-brand to-brand-dark rounded-xl p-5 shadow-lg shadow-brand/20 relative overflow-hidden">
               <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
               <div className="relative z-10">
                 <p className="text-sm font-medium mb-1 text-[#F1F5F2]/90">

@@ -179,7 +179,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 >
                   {/* Background container */}
                   <div
-                    className={`absolute inset-0 rounded-2xl transition-all ${
+                    className={`absolute inset-0 rounded-xl transition-all ${
                       active
                         ? "bg-brand/10 border-2 border-brand"
                         : "bg-bg-card border border-white/[0.06]"
@@ -187,14 +187,14 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   >
                     {!active && (
                       <div
-                        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl"
+                        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl"
                         style={{ backgroundColor: HABIT_COLORS[ht] }}
                       />
                     )}
                   </div>
                   {/* Content */}
                   <div
-                    className={`relative flex items-center p-5 gap-5 z-10 ${
+                    className={`relative flex items-center p-4 gap-5 z-10 ${
                       active ? "" : "pl-7"
                     }`}
                   >
@@ -286,7 +286,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
           <div className="space-y-6 flex-1 mt-6">
             {/* Baseline stepper */}
-            <div className="bg-bg-card rounded-2xl p-5">
+            <div className="bg-bg-card rounded-xl p-4">
               <label className="block text-sm text-text-secondary mb-4 font-medium">
                 {t("onboarding.baselineLabel")}
               </label>
@@ -316,7 +316,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             </div>
 
             {/* Cost stepper */}
-            <div className="bg-bg-card rounded-2xl p-5">
+            <div className="bg-bg-card rounded-xl p-4">
               <label className="block text-sm text-text-secondary mb-4 font-medium">
                 {t("onboarding.costLabel")}
               </label>
@@ -342,7 +342,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
             {/* Yearly cost highlight */}
             {cost > 0 && (
-              <div className="bg-danger/10 rounded-2xl p-5 text-center border border-danger/20">
+              <div className="bg-danger/10 rounded-xl p-4 text-center border border-danger/20">
                 <p className="text-sm text-text-secondary mb-1">
                   {t("onboarding.yearlyCost")}
                 </p>
@@ -398,7 +398,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         {configs.map((cfg) => (
           <div
             key={cfg.habit_type}
-            className="flex items-center justify-between bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06]"
+            className="flex items-center justify-between bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06]"
           >
             <div className="flex items-center gap-3">
               <div

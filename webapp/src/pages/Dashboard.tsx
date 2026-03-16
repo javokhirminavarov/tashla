@@ -129,7 +129,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
           if (!activeStep) return null;
           const daysLeft = Math.max(0, Math.ceil((new Date(activeStep.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
           return (
-            <div className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-border mt-4">
+            <div className="w-full bg-bg-card rounded-xl p-3.5 shadow-card border border-border mt-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="material-symbols-outlined text-brand text-[20px]">trending_down</span>
                 <span className="text-sm font-semibold text-text-primary">

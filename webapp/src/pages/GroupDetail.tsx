@@ -52,10 +52,10 @@ export default function GroupDetail() {
     return (
       <div className="min-h-screen bg-bg px-5 pt-16">
         <div className="animate-pulse space-y-4">
-          <div className="h-20 bg-white/5 rounded-2xl" />
+          <div className="h-20 bg-white/5 rounded-xl" />
           <div className="h-6 bg-white/5 rounded-lg w-1/3" />
-          <div className="h-32 bg-white/5 rounded-2xl" />
-          <div className="h-32 bg-white/5 rounded-2xl" />
+          <div className="h-32 bg-white/5 rounded-xl" />
+          <div className="h-32 bg-white/5 rounded-xl" />
         </div>
       </div>
     );
@@ -82,7 +82,7 @@ export default function GroupDetail() {
 
       <main className="flex-1 px-5 py-4 space-y-4">
         {/* Invite code card */}
-        <div className="bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] flex items-center justify-between">
+        <div className="bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] flex items-center justify-between">
           <div>
             <p className="text-xs text-text-muted mb-0.5">{t("community.inviteCode")}</p>
             <p className="text-lg font-semibold text-brand tracking-widest">{group.invite_code}</p>
@@ -110,7 +110,7 @@ export default function GroupDetail() {
             return (
               <div
                 key={member.user_id}
-                className={`bg-bg-card rounded-2xl p-4 shadow-card border ${
+                className={`bg-bg-card rounded-xl p-3.5 shadow-card border ${
                   rank === 1
                     ? "border-[#FFD700]/20 shadow-[0_0_20px_rgba(255,215,0,0.08)]"
                     : "border-white/[0.06]"
@@ -216,7 +216,7 @@ export default function GroupDetail() {
         {/* Leave button */}
         <button
           onClick={handleLeave}
-          className="w-full mt-4 py-3 rounded-2xl bg-danger/10 text-danger font-semibold text-sm transition-all active:scale-[0.97] transition-transform duration-100"
+          className="w-full mt-4 py-3 rounded-xl bg-danger/10 text-danger font-semibold text-sm transition-all active:scale-[0.97] transition-transform duration-100"
         >
           {t("community.leaveGroup")}
         </button>

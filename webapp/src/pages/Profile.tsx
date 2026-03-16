@@ -139,7 +139,7 @@ export default function Profile({
 
       <main className="flex-1 px-5 py-4 space-y-6">
         {/* User info card */}
-        <div className="bg-bg-card rounded-2xl p-5 shadow-card border border-white/[0.06] flex items-center gap-4">
+        <div className="bg-bg-card rounded-xl p-4 shadow-card border border-white/[0.06] flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-brand/20 flex items-center justify-center text-brand">
             <span className="material-symbols-outlined text-[28px]">
               person
@@ -163,7 +163,7 @@ export default function Profile({
           <div className="flex gap-2">
             <button
               onClick={() => switchLanguage("uz")}
-              className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
+              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
                 i18n.language === "uz"
                   ? "bg-brand/20 text-brand border-2 border-brand"
                   : "bg-bg-card text-text-secondary border border-white/[0.06]"
@@ -173,7 +173,7 @@ export default function Profile({
             </button>
             <button
               onClick={() => switchLanguage("ru")}
-              className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
+              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
                 i18n.language === "ru"
                   ? "bg-brand/20 text-brand border-2 border-brand"
                   : "bg-bg-card text-text-secondary border border-white/[0.06]"
@@ -189,7 +189,7 @@ export default function Profile({
           <h2 className="font-semibold text-text-secondary text-sm mb-3 px-1">
             {t("profile.notifications")}
           </h2>
-          <div className="bg-bg-card rounded-2xl p-5 shadow-card border border-white/[0.06] space-y-4">
+          <div className="bg-bg-card rounded-xl p-4 shadow-card border border-white/[0.06] space-y-4">
             {/* Enable toggle */}
             <div className="flex items-center justify-between">
               <span className="text-text-primary text-sm font-medium">
@@ -278,7 +278,7 @@ export default function Profile({
               {quitPlans.map((plan) => {
                 const activeStep = plan.steps.find((s) => s.status === "active");
                 return (
-                  <div key={plan.id} className="bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06]">
+                  <div key={plan.id} className="bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06]">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-text-primary">
                         {t(`habits.${plan.habit_type}`)}
@@ -339,7 +339,7 @@ export default function Profile({
           ) : (
             <button
               onClick={() => { setPlanSheetOpen(true); haptic("light"); }}
-              className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] text-center text-brand font-semibold text-sm active:scale-[0.97] transition-transform duration-100"
+              className="w-full bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] text-center text-brand font-semibold text-sm active:scale-[0.97] transition-transform duration-100"
             >
               + {t("quitPlan.startPlan")}
             </button>
@@ -361,7 +361,7 @@ export default function Profile({
                 return (
                   <div
                     key={ht}
-                    className="bg-bg-card rounded-2xl p-5 space-y-4 shadow-card border border-white/[0.06]"
+                    className="bg-bg-card rounded-xl p-4 space-y-4 shadow-card border border-white/[0.06]"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -425,7 +425,7 @@ export default function Profile({
               return (
                 <div
                   key={ht}
-                  className="bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] flex items-center justify-between"
+                  className="bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -480,7 +480,7 @@ export default function Profile({
                 {t("profile.addHabitHint")}
               </p>
               {addingHabit ? (
-                <div className="bg-bg-card rounded-2xl p-5 space-y-4 shadow-card border border-white/[0.06]">
+                <div className="bg-bg-card rounded-xl p-4 space-y-4 shadow-card border border-white/[0.06]">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -569,7 +569,7 @@ export default function Profile({
       {/* Delete confirmation overlay */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-bg-card rounded-2xl p-5 mx-5 max-w-sm w-full border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
+          <div className="bg-bg-card rounded-xl p-4 mx-5 max-w-sm w-full border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
             <p className="text-lg font-semibold text-text-primary mb-2">{t("profile.deleteHabitTitle")}</p>
             <p className="text-sm text-text-secondary mb-5">
               {t("profile.deleteHabitMessage", { habit: t(`habits.${confirmDelete}`) })}

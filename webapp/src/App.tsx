@@ -115,7 +115,7 @@ function AppContent() {
           <p className="text-[#F1F5F2] font-semibold text-xl mb-3">
             {t("common.error")}
           </p>
-          <div className="bg-[#1a2c22] rounded-2xl p-4 mb-5 border border-white/[0.06]">
+          <div className="bg-[#1a2c22] rounded-xl p-3.5 mb-5 border border-white/[0.06]">
             <p className="text-[#EF4444] text-sm font-medium break-words">{errorToShow}</p>
           </div>
           <div className="bg-[#0d1a12] rounded-xl p-4 mb-5 border border-white/[0.04] text-left">

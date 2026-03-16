@@ -40,13 +40,13 @@ export default function Community() {
         <div className="flex gap-3 mb-6">
           <button
             onClick={() => { setCreateOpen(true); haptic("light"); }}
-            className="flex-1 bg-[#1fc762] text-[#0d1a12] font-semibold py-3 rounded-2xl text-sm transition-all active:scale-[0.97] shadow-glow"
+            className="flex-1 bg-[#1fc762] text-[#0d1a12] font-semibold py-3 rounded-xl text-sm transition-all active:scale-[0.97] shadow-glow"
           >
             {t("community.createGroup")}
           </button>
           <button
             onClick={() => { setJoinOpen(true); haptic("light"); }}
-            className="flex-1 bg-bg-card text-text-primary font-semibold py-3 rounded-2xl text-sm border border-white/[0.06] transition-all active:scale-[0.97]"
+            className="flex-1 bg-bg-card text-text-primary font-semibold py-3 rounded-xl text-sm border border-white/[0.06] transition-all active:scale-[0.97]"
           >
             {t("community.joinByCode")}
           </button>
@@ -54,9 +54,9 @@ export default function Community() {
 
         {loading ? (
           <div className="animate-pulse space-y-3">
-            <div className="h-20 bg-white/5 rounded-2xl" />
-            <div className="h-20 bg-white/5 rounded-2xl" />
-            <div className="h-20 bg-white/5 rounded-2xl" />
+            <div className="h-20 bg-white/5 rounded-xl" />
+            <div className="h-20 bg-white/5 rounded-xl" />
+            <div className="h-20 bg-white/5 rounded-xl" />
           </div>
         ) : groups.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -78,7 +78,7 @@ export default function Community() {
               <button
                 key={group.id}
                 onClick={() => { navigate(`/group/${group.id}`); haptic("light"); }}
-                className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] flex items-center justify-between text-left transition-transform duration-100 active:scale-[0.97]"
+                className="w-full bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] flex items-center justify-between text-left transition-transform duration-100 active:scale-[0.97]"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-brand/20 flex items-center justify-center text-brand">

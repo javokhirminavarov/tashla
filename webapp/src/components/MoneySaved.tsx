@@ -14,8 +14,8 @@ export default function MoneySaved({ money }: MoneySavedProps) {
   };
 
   return (
-    <div className="w-full bg-bg-card rounded-2xl p-5 shadow-card border border-white/[0.06] relative overflow-hidden flex items-center justify-between transition-transform duration-100 active:scale-[0.97]">
-      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand rounded-l-2xl" />
+    <div className="w-full bg-bg-card rounded-xl p-4 shadow-card border border-white/[0.06] relative overflow-hidden flex items-center justify-between transition-transform duration-100 active:scale-[0.97]">
+      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand rounded-l-xl" />
       <div className="pl-3 flex flex-col gap-1">
         <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
           {t("moneySaved.todaySaved")}
