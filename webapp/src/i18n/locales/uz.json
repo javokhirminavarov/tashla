@@ -80,7 +80,11 @@
     "trendDown": "Kamayyapti!",
     "trendUp": "Diqqat!",
     "trendFlat": "Barqaror",
-    "perDayAvg": "/ kun (o'rtacha)"
+    "perDayAvg": "/ kun (o'rtacha)",
+    "totalCount": "jami",
+    "retry": "Qayta urinish",
+    "noLogs": "Hali qayd yo'q",
+    "noLogsHint": "Birinchi qaydingizni qo'shing"
   },
   "health": {
     "title": "Sog'liq",

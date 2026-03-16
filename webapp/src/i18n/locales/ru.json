@@ -80,7 +80,11 @@
     "trendDown": "Снижается!",
     "trendUp": "Внимание!",
     "trendFlat": "Стабильно",
-    "perDayAvg": "/ день (среднее)"
+    "perDayAvg": "/ день (среднее)",
+    "totalCount": "всего",
+    "retry": "Повторить",
+    "noLogs": "Нет записей",
+    "noLogsHint": "Добавьте первую запись"
   },
   "health": {
     "title": "Здоровье",

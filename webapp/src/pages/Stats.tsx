@@ -14,19 +14,28 @@ export default function Stats({ profiles }: StatsProps) {
   const [days, setDays] = useState(7);
   const [data, setData] = useState<DailyEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const periods = [
     { label: t("stats.week"), value: 7 },
     { label: t("stats.month"), value: 30 },
   ];
 
-  useEffect(() => {
+  const fetchData = () => {
     setLoading(true);
+    setError(null);
     api
       .getDailyLogs(days)
       .then(setData)
-      .catch(console.error)
+      .catch((err) => {
+        console.error(err);
+        setError(err.message || t("common.error"));
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [days]);
 
   // Compute summary + trend per habit
@@ -34,7 +43,7 @@ export default function Stats({ profiles }: StatsProps) {
     const ht = p.habit_type as HabitType;
     const values = data.map((d) => (d[ht] as number) ?? 0);
     const total = values.reduce((s, v) => s + v, 0);
-    const avg = values.length > 0 ? total / values.length : 0;
+    const avg = total / days;
 
     let trend: "down" | "up" | "flat" = "flat";
     if (values.length >= 2) {
@@ -51,10 +60,14 @@ export default function Stats({ profiles }: StatsProps) {
 
     // Overall completion percentage
     const limit = p.daily_limit ?? p.daily_baseline;
-    const completionPct =
-      limit > 0 && avg > 0
-        ? Math.round(Math.max(0, (1 - avg / limit) * 100))
-        : 0;
+    let completionPct: number;
+    if (limit <= 0) {
+      completionPct = 0;
+    } else if (avg === 0) {
+      completionPct = 100;
+    } else {
+      completionPct = Math.round((1 - avg / limit) * 100);
+    }
 
     return { ht, total, avg, trend, completionPct };
   });
@@ -67,7 +80,7 @@ export default function Stats({ profiles }: StatsProps) {
   const overallPct =
     summaries.length > 0
       ? Math.round(
-          summaries.reduce((sum, s) => sum + s.completionPct, 0) /
+          summaries.reduce((sum, s) => sum + Math.min(100, Math.max(0, s.completionPct)), 0) /
             summaries.length
         )
       : 0;
@@ -107,6 +120,27 @@ export default function Stats({ profiles }: StatsProps) {
             <div className="h-48 bg-white/5 rounded-2xl" />
             <div className="h-6 bg-white/5 rounded-lg w-1/2" />
             <div className="h-64 bg-white/5 rounded-2xl" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 rounded-full mb-4 bg-danger/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[28px] text-danger">error</span>
+            </div>
+            <p className="text-sm text-[#94A3A1] mb-3">{error}</p>
+            <button
+              onClick={fetchData}
+              className="min-h-[44px] px-6 rounded-xl bg-brand/15 text-brand text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
+            >
+              {t("stats.retry")}
+            </button>
+          </div>
+        ) : profiles.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 rounded-full mb-4 bg-white/5 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[28px] text-[#5C716A]">bar_chart</span>
+            </div>
+            <p className="text-sm text-[#94A3A1] mb-1">{t("stats.noLogs")}</p>
+            <p className="text-xs text-[#5C716A]">{t("stats.noLogsHint")}</p>
           </div>
         ) : (
           <>
@@ -220,13 +254,23 @@ export default function Stats({ profiles }: StatsProps) {
                         </div>
                       )}
                     </div>
-                    <div className="mt-6 flex items-baseline gap-2">
-                      <span className="text-3xl font-light tracking-tight text-text-primary">
-                        {summary.avg.toFixed(1)}
-                      </span>
-                      <span className="text-sm font-medium text-text-muted">
-                        {t("stats.perDayAvg")}
-                      </span>
+                    <div className="mt-6 flex items-baseline gap-4">
+                      <div>
+                        <span className="text-3xl font-light tracking-tight text-text-primary">
+                          {summary.total}
+                        </span>
+                        <span className="block text-xs font-medium tracking-wide uppercase text-text-muted mt-1">
+                          {t("stats.totalCount")}
+                        </span>
+                      </div>
+                      <div className="border-l border-white/[0.06] pl-4">
+                        <span className="text-2xl font-light tracking-tight text-text-primary">
+                          {summary.avg.toFixed(1)}
+                        </span>
+                        <span className="block text-xs font-medium tracking-wide uppercase text-text-muted mt-1">
+                          {t("stats.perDayAvg")}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
