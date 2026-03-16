@@ -70,7 +70,7 @@ export default function QuitPlanSheet({
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
-      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-3xl p-5 pb-8 animate-slide-up max-h-[85vh] overflow-y-auto border-t border-white/[0.08]">
+      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-xl px-4 py-3.5 pb-8 animate-slide-up max-h-[85vh] overflow-y-auto border-t border-white/[0.08]">
         <div className="flex justify-center mb-4">
           <div className="w-10 h-1 rounded-full bg-white/[0.06]" />
         </div>
@@ -107,13 +107,13 @@ export default function QuitPlanSheet({
         )}
 
         {/* Current limit display */}
-        <div className="bg-bg-surface rounded-xl p-3.5 mb-4">
+        <div className="bg-bg-surface rounded-lg p-3 mb-3">
           <p className="text-xs text-text-muted mb-1">{t("quitPlan.currentLimit")}</p>
           <p className="text-2xl font-light tracking-tight text-text-primary">{startLimit} {t("common.piecesPerDay")}</p>
         </div>
 
         {/* Target limit */}
-        <div className="bg-bg-surface rounded-xl p-3.5 mb-4">
+        <div className="bg-bg-surface rounded-lg p-3 mb-3">
           <p className="text-xs text-text-muted mb-2">{t("quitPlan.targetLimit")}</p>
           <div className="flex items-center justify-center gap-4">
             <button
@@ -133,14 +133,14 @@ export default function QuitPlanSheet({
         </div>
 
         {/* Speed selector */}
-        <div className="mb-4">
+        <div className="mb-3">
           <p className="text-xs text-text-muted mb-2">{t("quitPlan.speed")}</p>
           <div className="flex gap-2">
             {SPEED_OPTIONS.map((opt, i) => (
               <button
                 key={opt.key}
                 onClick={() => { setSpeedIdx(i); haptic("light"); }}
-                className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
+                className={`flex-1 py-3 rounded-lg text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
                   speedIdx === i
                     ? "bg-brand/20 text-brand border-2 border-brand"
                     : "bg-bg-surface text-text-secondary border border-transparent"
@@ -153,7 +153,7 @@ export default function QuitPlanSheet({
         </div>
 
         {/* Preview */}
-        <div className="bg-brand/10 rounded-xl p-3.5 mb-6 text-center">
+        <div className="bg-brand/10 rounded-lg p-3 mb-4 text-center">
           <p className="text-sm text-brand font-medium">
             {t("quitPlan.preview", { weeks })}
           </p>
@@ -163,7 +163,7 @@ export default function QuitPlanSheet({
         <button
           onClick={handleCreate}
           disabled={saving}
-          className="w-full min-h-[56px] bg-[#1fc762] hover:bg-[#17a34a] text-[#0d1a12] font-semibold text-sm tracking-wide py-4 rounded-2xl shadow-[0_0_20px_rgba(31,199,98,0.3)] transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a] disabled:opacity-50"
+          className="w-full min-h-[56px] bg-[#1fc762] hover:bg-[#17a34a] text-[#0d1a12] font-semibold text-sm tracking-wide py-4 rounded-xl shadow-[0_0_20px_rgba(31,199,98,0.3)] transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a] disabled:opacity-50"
         >
           {saving ? t("common.saving") : t("quitPlan.startPlan")}
         </button>

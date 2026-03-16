@@ -37,7 +37,7 @@ export default function Community() {
 
       <main className="flex-1 px-5 py-4">
         {/* Action buttons */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-2.5 mb-3">
           <button
             onClick={() => { setCreateOpen(true); haptic("light"); }}
             className="flex-1 bg-[#1fc762] text-[#0d1a12] font-semibold py-3 rounded-xl text-sm transition-all active:scale-[0.97] shadow-glow"

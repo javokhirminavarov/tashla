@@ -33,10 +33,11 @@ export default {
         body: ["Lexend", "sans-serif"],
       },
       borderRadius: {
-        DEFAULT: "1rem",
-        lg: "1.5rem",
-        xl: "2rem",
-        "2xl": "2.5rem",
+        DEFAULT: "0.5rem",
+        lg: "0.5rem",
+        xl: "0.75rem",
+        "2xl": "1rem",
+        "3xl": "1rem",
         full: "9999px",
       },
       boxShadow: {

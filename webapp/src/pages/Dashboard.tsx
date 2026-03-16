@@ -87,7 +87,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center px-6">
         {/* Hero Progress Ring */}
-        <div className="mt-4 mb-6 flex flex-col items-center justify-center">
+        <div className="mt-4 mb-4 flex flex-col items-center justify-center">
           <CircularProgress
             current={selectedCount}
             max={selectedLimit}
@@ -104,7 +104,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
 
         {/* Habit Strip */}
         {profiles.length > 1 && (
-          <div className="w-full flex gap-3 mb-4 overflow-x-auto py-1">
+          <div className="w-full flex gap-2.5 mb-3 overflow-x-auto py-1">
             {profiles.map((profile) => (
               <HabitCard
                 key={profile.habit_type}

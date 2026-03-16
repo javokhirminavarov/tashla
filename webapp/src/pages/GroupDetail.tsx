@@ -51,7 +51,7 @@ export default function GroupDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-bg px-5 pt-16">
-        <div className="animate-pulse space-y-4">
+        <div className="animate-pulse space-y-3">
           <div className="h-20 bg-white/5 rounded-xl" />
           <div className="h-6 bg-white/5 rounded-lg w-1/3" />
           <div className="h-32 bg-white/5 rounded-xl" />
@@ -80,7 +80,7 @@ export default function GroupDetail() {
         <div className="w-10" />
       </header>
 
-      <main className="flex-1 px-5 py-4 space-y-4">
+      <main className="flex-1 px-5 py-4 space-y-3">
         {/* Invite code card */}
         <div className="bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] flex items-center justify-between">
           <div>
@@ -156,7 +156,7 @@ export default function GroupDetail() {
                     return (
                       <div
                         key={ht}
-                        className="flex items-center gap-1.5 bg-bg-surface rounded-xl px-3 py-2"
+                        className="flex items-center gap-1.5 bg-bg-surface rounded-lg px-3 py-2"
                       >
                         <span className="text-sm">{HABIT_ICONS[ht as HabitType]}</span>
                         <span

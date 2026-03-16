@@ -91,7 +91,7 @@ function AppContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#122017] flex flex-col items-center justify-center">
-        <div className="animate-pulse space-y-4 w-64">
+        <div className="animate-pulse space-y-3 w-64">
           <div className="h-4 bg-white/10 rounded-lg w-3/4 mx-auto" />
           <div className="h-10 bg-white/10 rounded-xl w-1/2 mx-auto" />
           <div className="h-3 bg-white/10 rounded-lg w-2/3 mx-auto" />
@@ -118,7 +118,7 @@ function AppContent() {
           <div className="bg-[#1a2c22] rounded-xl p-3.5 mb-5 border border-white/[0.06]">
             <p className="text-[#EF4444] text-sm font-medium break-words">{errorToShow}</p>
           </div>
-          <div className="bg-[#0d1a12] rounded-xl p-4 mb-5 border border-white/[0.04] text-left">
+          <div className="bg-[#0d1a12] rounded-xl p-3.5 mb-5 border border-white/[0.04] text-left">
             <p className="text-[10px] uppercase tracking-wide text-[#5C716A] mb-2">Diagnostika</p>
             <div className="space-y-1 text-xs text-[#94A3A1] font-mono break-all">
               <p>API: {import.meta.env.VITE_API_URL || "(bo'sh)"}</p>
@@ -129,7 +129,7 @@ function AppContent() {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="w-full min-h-[56px] rounded-2xl bg-[#1fc762] text-[#0d1a12] font-semibold text-sm tracking-wide active:scale-[0.97] active:bg-[#17a34a] transition-all duration-150 shadow-[0_0_20px_rgba(31,199,98,0.3)]"
+            className="w-full min-h-[56px] rounded-xl bg-[#1fc762] text-[#0d1a12] font-semibold text-sm tracking-wide active:scale-[0.97] active:bg-[#17a34a] transition-all duration-150 shadow-[0_0_20px_rgba(31,199,98,0.3)]"
           >
             {t("common.retry", "Qayta urinish")}
           </button>

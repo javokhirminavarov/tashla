@@ -43,7 +43,7 @@ export default function JoinGroupSheet({
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
-      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-3xl p-5 pb-8 animate-slide-up border-t border-white/[0.08]">
+      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-xl px-4 py-3.5 pb-8 animate-slide-up border-t border-white/[0.08]">
         <div className="flex justify-center mb-4">
           <div className="w-10 h-1 rounded-full bg-white/[0.06]" />
         </div>
@@ -61,7 +61,7 @@ export default function JoinGroupSheet({
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="AB12CD34EF"
-            className="w-full h-11 bg-bg-surface border border-white/10 rounded-xl px-4 text-text-primary text-center font-mono tracking-widest focus:outline-none focus:border-[#1fc762]/40 transition-colors"
+            className="w-full h-11 bg-bg-surface border border-white/10 rounded-lg px-4 text-text-primary text-center font-mono tracking-widest focus:outline-none focus:border-[#1fc762]/40 transition-colors"
             maxLength={10}
           />
           {error && (
@@ -72,7 +72,7 @@ export default function JoinGroupSheet({
         <button
           onClick={handleJoin}
           disabled={saving || !code.trim()}
-          className="w-full min-h-[56px] bg-[#1fc762] text-[#0d1a12] font-semibold text-sm tracking-wide py-4 rounded-2xl shadow-[0_0_20px_rgba(31,199,98,0.3)] transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a] disabled:opacity-50"
+          className="w-full min-h-[56px] bg-[#1fc762] text-[#0d1a12] font-semibold text-sm tracking-wide py-4 rounded-xl shadow-[0_0_20px_rgba(31,199,98,0.3)] transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a] disabled:opacity-50"
         >
           {saving ? t("common.saving") : t("community.joinGroup")}
         </button>

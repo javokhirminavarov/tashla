@@ -137,9 +137,9 @@ export default function Profile({
         <div className="w-10" />
       </header>
 
-      <main className="flex-1 px-5 py-4 space-y-6">
+      <main className="flex-1 px-5 py-4 space-y-3">
         {/* User info card */}
-        <div className="bg-bg-card rounded-xl p-4 shadow-card border border-white/[0.06] flex items-center gap-4">
+        <div className="bg-bg-card rounded-xl px-4 py-3.5 shadow-card border border-white/[0.06] flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-brand/20 flex items-center justify-center text-brand">
             <span className="material-symbols-outlined text-[28px]">
               person
@@ -163,7 +163,7 @@ export default function Profile({
           <div className="flex gap-2">
             <button
               onClick={() => switchLanguage("uz")}
-              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
+              className={`flex-1 py-3 rounded-lg text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
                 i18n.language === "uz"
                   ? "bg-brand/20 text-brand border-2 border-brand"
                   : "bg-bg-card text-text-secondary border border-white/[0.06]"
@@ -173,7 +173,7 @@ export default function Profile({
             </button>
             <button
               onClick={() => switchLanguage("ru")}
-              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
+              className={`flex-1 py-3 rounded-lg text-sm font-semibold transition-all active:scale-[0.97] transition-transform duration-100 ${
                 i18n.language === "ru"
                   ? "bg-brand/20 text-brand border-2 border-brand"
                   : "bg-bg-card text-text-secondary border border-white/[0.06]"
@@ -189,7 +189,7 @@ export default function Profile({
           <h2 className="font-semibold text-text-secondary text-sm mb-3 px-1">
             {t("profile.notifications")}
           </h2>
-          <div className="bg-bg-card rounded-xl p-4 shadow-card border border-white/[0.06] space-y-4">
+          <div className="bg-bg-card rounded-xl px-4 py-3.5 shadow-card border border-white/[0.06] space-y-3">
             {/* Enable toggle */}
             <div className="flex items-center justify-between">
               <span className="text-text-primary text-sm font-medium">
@@ -229,7 +229,7 @@ export default function Profile({
                           haptic("light");
                           api.updateNotifications({ notification_time: time }).catch(console.error);
                         }}
-                        className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all active:scale-[0.97] transition-transform duration-100 ${
+                        className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.97] transition-transform duration-100 ${
                           notifTime === time
                             ? "bg-brand/20 text-brand border border-brand"
                             : "bg-bg-surface text-text-secondary border border-transparent"
@@ -301,7 +301,7 @@ export default function Profile({
                       </div>
                     )}
                     {confirmStopPlan === plan.id ? (
-                      <div className="mt-2 bg-danger/5 border border-danger/20 rounded-xl p-3 space-y-2">
+                      <div className="mt-2 bg-danger/5 border border-danger/20 rounded-lg p-3 space-y-2">
                         <p className="text-sm font-semibold text-danger">{t("quitPlan.confirmStopTitle")}</p>
                         <p className="text-xs text-text-secondary">{t("quitPlan.confirmStopMessage")}</p>
                         <div className="flex gap-2">
@@ -312,13 +312,13 @@ export default function Profile({
                               setQuitPlans((prev) => prev.filter((p) => p.id !== plan.id));
                               setConfirmStopPlan(null);
                             }}
-                            className="flex-1 py-2 bg-danger text-[#F1F5F2] rounded-xl text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
+                            className="flex-1 py-2 bg-danger text-[#F1F5F2] rounded-lg text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
                           >
                             {t("quitPlan.confirmStop")}
                           </button>
                           <button
                             onClick={() => setConfirmStopPlan(null)}
-                            className="flex-1 py-2 bg-bg-surface text-text-secondary rounded-xl text-sm font-medium active:scale-[0.97] transition-transform duration-100"
+                            className="flex-1 py-2 bg-bg-surface text-text-secondary rounded-lg text-sm font-medium active:scale-[0.97] transition-transform duration-100"
                           >
                             {t("common.cancel")}
                           </button>
@@ -327,7 +327,7 @@ export default function Profile({
                     ) : (
                       <button
                         onClick={() => { haptic("light"); setConfirmStopPlan(plan.id); }}
-                        className="text-sm text-danger font-medium border border-danger/20 bg-danger/5 rounded-xl px-4 py-2 active:scale-[0.97] transition-transform duration-100"
+                        className="text-sm text-danger font-medium border border-danger/20 bg-danger/5 rounded-lg px-4 py-2 active:scale-[0.97] transition-transform duration-100"
                       >
                         {t("quitPlan.stopPlanFull")}
                       </button>
@@ -361,7 +361,7 @@ export default function Profile({
                 return (
                   <div
                     key={ht}
-                    className="bg-bg-card rounded-xl p-4 space-y-4 shadow-card border border-white/[0.06]"
+                    className="bg-bg-card rounded-xl px-4 py-3.5 space-y-3 shadow-card border border-white/[0.06]"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -388,7 +388,7 @@ export default function Profile({
                         inputMode="numeric"
                         value={baseline}
                         onChange={(e) => setBaseline(e.target.value)}
-                        className="w-full h-11 bg-bg-surface border border-white/10 rounded-xl px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
+                        className="w-full h-11 bg-bg-surface border border-white/10 rounded-lg px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
                       />
                     </div>
                     <div>
@@ -400,7 +400,7 @@ export default function Profile({
                         inputMode="numeric"
                         value={cost}
                         onChange={(e) => setCost(e.target.value)}
-                        className="w-full h-11 bg-bg-surface border border-white/10 rounded-xl px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
+                        className="w-full h-11 bg-bg-surface border border-white/10 rounded-lg px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
                       />
                     </div>
                     <div className="flex gap-3">
@@ -480,7 +480,7 @@ export default function Profile({
                 {t("profile.addHabitHint")}
               </p>
               {addingHabit ? (
-                <div className="bg-bg-card rounded-xl p-4 space-y-4 shadow-card border border-white/[0.06]">
+                <div className="bg-bg-card rounded-xl px-4 py-3.5 space-y-3 shadow-card border border-white/[0.06]">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -506,7 +506,7 @@ export default function Profile({
                       inputMode="numeric"
                       value={addBaseline}
                       onChange={(e) => setAddBaseline(e.target.value)}
-                      className="w-full h-11 bg-bg-surface border border-white/10 rounded-xl px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
+                      className="w-full h-11 bg-bg-surface border border-white/10 rounded-lg px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
                     />
                   </div>
                   <div>
@@ -518,7 +518,7 @@ export default function Profile({
                       inputMode="numeric"
                       value={addCost}
                       onChange={(e) => setAddCost(e.target.value)}
-                      className="w-full h-11 bg-bg-surface border border-white/10 rounded-xl px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
+                      className="w-full h-11 bg-bg-surface border border-white/10 rounded-lg px-4 text-text-primary focus:outline-none focus:border-[#1fc762]/40 transition-colors"
                     />
                   </div>
                   <div className="flex gap-3">
@@ -569,9 +569,9 @@ export default function Profile({
       {/* Delete confirmation overlay */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-bg-card rounded-xl p-4 mx-5 max-w-sm w-full border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
+          <div className="bg-bg-card rounded-xl px-4 py-3.5 mx-5 max-w-sm w-full border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
             <p className="text-lg font-semibold text-text-primary mb-2">{t("profile.deleteHabitTitle")}</p>
-            <p className="text-sm text-text-secondary mb-5">
+            <p className="text-sm text-text-secondary mb-4">
               {t("profile.deleteHabitMessage", { habit: t(`habits.${confirmDelete}`) })}
             </p>
             <div className="flex gap-3">
@@ -580,13 +580,13 @@ export default function Profile({
                   await handleDelete(confirmDelete);
                   setConfirmDelete(null);
                 }}
-                className="flex-1 py-3 bg-danger text-[#F1F5F2] rounded-xl text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
+                className="flex-1 py-3 bg-danger text-[#F1F5F2] rounded-lg text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
               >
                 {t("profile.deleteHabitConfirm")}
               </button>
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-3 bg-bg-surface text-text-secondary rounded-xl text-sm font-medium active:scale-[0.97] transition-transform duration-100"
+                className="flex-1 py-3 bg-bg-surface text-text-secondary rounded-lg text-sm font-medium active:scale-[0.97] transition-transform duration-100"
               >
                 {t("common.cancel")}
               </button>

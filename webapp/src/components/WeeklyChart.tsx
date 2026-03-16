@@ -85,7 +85,7 @@ export default function WeeklyChart({
             contentStyle={{
               backgroundColor: "#23352b",
               border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: "12px",
+              borderRadius: "8px",
               fontSize: "12px",
               fontFamily: "Lexend",
               color: "#F1F5F2",

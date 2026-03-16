@@ -97,7 +97,7 @@ export default function Stats({ profiles }: StatsProps) {
         <div className="w-10" />
       </header>
 
-      <main className="flex-1 flex flex-col gap-6 px-5 pb-28">
+      <main className="flex-1 flex flex-col gap-3 px-5 pb-28">
         {/* Segmented Control */}
         <div className="flex p-1 bg-bg-surface rounded-full">
           {periods.map((opt) => (
@@ -116,7 +116,7 @@ export default function Stats({ profiles }: StatsProps) {
         </div>
 
         {loading ? (
-          <div className="animate-pulse space-y-6">
+          <div className="animate-pulse space-y-3">
             <div className="h-48 bg-white/5 rounded-xl" />
             <div className="h-6 bg-white/5 rounded-lg w-1/2" />
             <div className="h-64 bg-white/5 rounded-xl" />
@@ -129,7 +129,7 @@ export default function Stats({ profiles }: StatsProps) {
             <p className="text-sm text-[#94A3A1] mb-3">{error}</p>
             <button
               onClick={fetchData}
-              className="min-h-[44px] px-6 rounded-xl bg-brand/15 text-brand text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
+              className="min-h-[44px] px-6 rounded-lg bg-brand/15 text-brand text-sm font-semibold active:scale-[0.97] transition-transform duration-100"
             >
               {t("stats.retry")}
             </button>
@@ -145,7 +145,7 @@ export default function Stats({ profiles }: StatsProps) {
         ) : (
           <>
             {/* Summary Hero Card */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-brand to-brand-dark p-4 shadow-soft shadow-brand/30">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-brand to-brand-dark px-4 py-3.5 shadow-soft shadow-brand/30">
               <div className="absolute right-0 top-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
               <div className="relative z-10">
@@ -169,7 +169,7 @@ export default function Stats({ profiles }: StatsProps) {
                 </p>
 
                 {bestHabit && (
-                  <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-xl p-3">
+                  <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-lg p-2.5">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F1F5F2]/90 text-brand">
                       <span className="material-symbols-outlined">star</span>
                     </div>
@@ -205,7 +205,7 @@ export default function Stats({ profiles }: StatsProps) {
                   key={ht}
                   className="flex flex-col overflow-hidden rounded-xl bg-bg-card shadow-card border border-white/[0.06]"
                 >
-                  <div className="p-4 pb-0">
+                  <div className="px-4 py-3.5 pb-0">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div

@@ -141,7 +141,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             haptic("medium");
             setStep(1);
           }}
-          className="w-full max-w-xs min-h-[56px] bg-[#1fc762] hover:bg-[#17a34a] text-[#0d1a12] font-semibold text-lg py-4 px-6 rounded-2xl shadow-[0_0_20px_rgba(31,199,98,0.3)] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a]"
+          className="w-full max-w-xs min-h-[56px] bg-[#1fc762] hover:bg-[#17a34a] text-[#0d1a12] font-semibold text-lg py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(31,199,98,0.3)] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a]"
         >
           {t("onboarding.start")}
           <span className="material-symbols-outlined text-2xl">
@@ -168,7 +168,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 flex-1">
+          <div className="flex flex-col gap-2.5 flex-1">
             {ALL_HABITS.map((ht) => {
               const active = selected.includes(ht);
               return (
@@ -194,7 +194,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   </div>
                   {/* Content */}
                   <div
-                    className={`relative flex items-center p-4 gap-5 z-10 ${
+                    className={`relative flex items-center px-4 py-3.5 gap-5 z-10 ${
                       active ? "" : "pl-7"
                     }`}
                   >
@@ -236,12 +236,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         </div>
 
         {/* Fixed bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-bg via-bg to-transparent pt-12 z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-bg via-bg to-transparent pt-12 z-50">
           <div className="max-w-md mx-auto w-full">
             <button
               onClick={nextFromSelect}
               disabled={selected.length === 0}
-              className={`w-full min-h-[56px] font-semibold text-lg py-4 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] ${
+              className={`w-full min-h-[56px] font-semibold text-lg py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] ${
                 selected.length > 0
                   ? "bg-[#1fc762] text-[#0d1a12] shadow-[0_0_20px_rgba(31,199,98,0.3)]"
                   : "bg-bg-surface text-text-muted"
@@ -284,9 +284,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             </div>
           </div>
 
-          <div className="space-y-6 flex-1 mt-6">
+          <div className="space-y-3 flex-1 mt-6">
             {/* Baseline stepper */}
-            <div className="bg-bg-card rounded-xl p-4">
+            <div className="bg-bg-card rounded-xl px-4 py-3.5">
               <label className="block text-sm text-text-secondary mb-4 font-medium">
                 {t("onboarding.baselineLabel")}
               </label>
@@ -316,7 +316,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             </div>
 
             {/* Cost stepper */}
-            <div className="bg-bg-card rounded-xl p-4">
+            <div className="bg-bg-card rounded-xl px-4 py-3.5">
               <label className="block text-sm text-text-secondary mb-4 font-medium">
                 {t("onboarding.costLabel")}
               </label>
@@ -342,7 +342,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
             {/* Yearly cost highlight */}
             {cost > 0 && (
-              <div className="bg-danger/10 rounded-xl p-4 text-center border border-danger/20">
+              <div className="bg-danger/10 rounded-xl px-4 py-3.5 text-center border border-danger/20">
                 <p className="text-sm text-text-secondary mb-1">
                   {t("onboarding.yearlyCost")}
                 </p>
@@ -355,12 +355,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         </div>
 
         {/* Fixed bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-bg via-bg to-transparent pt-12 z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-bg via-bg to-transparent pt-12 z-50">
           <div className="max-w-md mx-auto w-full">
             <button
               onClick={nextConfig}
               disabled={baseline <= 0}
-              className="w-full min-h-[56px] font-semibold text-lg py-4 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] text-[#F1F5F2] shadow-lg"
+              className="w-full min-h-[56px] font-semibold text-lg py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] text-[#F1F5F2] shadow-lg"
               style={{
                 backgroundColor:
                   baseline > 0 ? HABIT_COLORS[ht] : undefined,
@@ -394,7 +394,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         {t("onboarding.readyDescription", { count: configs.length })}
       </p>
 
-      <div className="w-full max-w-xs space-y-3 mb-10">
+      <div className="w-full max-w-xs space-y-2.5 mb-10">
         {configs.map((cfg) => (
           <div
             key={cfg.habit_type}
@@ -423,7 +423,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       <button
         onClick={finish}
         disabled={saving}
-        className="w-full max-w-xs min-h-[56px] bg-[#1fc762] hover:bg-[#17a34a] text-[#0d1a12] font-semibold text-lg py-4 px-6 rounded-2xl shadow-[0_0_20px_rgba(31,199,98,0.3)] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a] disabled:opacity-50"
+        className="w-full max-w-xs min-h-[56px] bg-[#1fc762] hover:bg-[#17a34a] text-[#0d1a12] font-semibold text-lg py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(31,199,98,0.3)] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97] active:bg-[#17a34a] disabled:opacity-50"
       >
         {saving ? (
           <>
