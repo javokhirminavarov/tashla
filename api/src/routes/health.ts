@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { query } from "../db.js";
+import { query, formatDateValue } from "../db.js";
 import { authMiddleware } from "../auth.js";
 
 const router = Router();
@@ -29,11 +29,11 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
       [req.user.id, habitType]
     );
 
-    const lastLogAt = lastLogResult.rows[0]?.logged_at as string | undefined;
-    const profileCreatedAt = profileResult.rows[0]?.created_at as string | undefined;
+    const rawLastLog = lastLogResult.rows[0]?.logged_at;
+    const rawProfileCreated = profileResult.rows[0]?.created_at;
 
     // Reference time: last log, or profile creation if no logs
-    const referenceTime = lastLogAt || profileCreatedAt;
+    const rawRef = rawLastLog || rawProfileCreated;
 
     // Get all milestones for this habit
     const milestones = await query(
@@ -45,9 +45,19 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
     );
 
     let hoursSinceRef = 0;
-    if (referenceTime) {
-      const refDate = new Date(referenceTime + (referenceTime.includes("Z") || referenceTime.includes("+") ? "" : "Z"));
+    let lastLogAt: string | null = null;
+    if (rawRef) {
+      let refDate: Date;
+      if (rawRef instanceof Date) {
+        refDate = rawRef;
+      } else {
+        const s = String(rawRef);
+        refDate = new Date(s + (s.includes("Z") || s.includes("+") ? "" : "Z"));
+      }
       hoursSinceRef = (Date.now() - refDate.getTime()) / (1000 * 60 * 60);
+    }
+    if (rawLastLog) {
+      lastLogAt = rawLastLog instanceof Date ? rawLastLog.toISOString() : String(rawLastLog);
     }
 
     const enriched = milestones.rows.map((m) => {

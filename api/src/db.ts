@@ -150,8 +150,17 @@ INSERT OR IGNORE INTO health_milestones (habit_type, hours_after, title_uz, desc
 function convertSchemaToPg(sql: string): string {
   return sql
     .replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, "SERIAL PRIMARY KEY")
+    .replace(/TEXT DEFAULT \(datetime\('now'\)\)/g, "TIMESTAMPTZ DEFAULT NOW()")
     .replace(/datetime\('now'\)/g, "NOW()")
     .replace(/\bREAL\b/g, "DOUBLE PRECISION");
+}
+
+/** Convert a date value from the database to ISO format string (YYYY-MM-DD) */
+export function formatDateValue(value: unknown): string {
+  if (value instanceof Date) {
+    return value.toISOString().split("T")[0];
+  }
+  return String(value);
 }
 
 if (isSQLite) {
@@ -238,6 +247,23 @@ if (isSQLite) {
     // Already BIGINT or table just created with correct type — safe to ignore
   }
 
+  // Migrate TEXT timestamp columns to TIMESTAMPTZ (for databases created before this fix)
+  const timestampMigrations = [
+    { table: "users", column: "created_at" },
+    { table: "habit_profiles", column: "created_at" },
+    { table: "usage_logs", column: "logged_at" },
+    { table: "quit_plans", column: "started_at" },
+    { table: "groups", column: "created_at" },
+    { table: "group_members", column: "joined_at" },
+  ];
+  for (const { table, column } of timestampMigrations) {
+    try {
+      await pool.query(`ALTER TABLE ${table} ALTER COLUMN ${column} TYPE TIMESTAMPTZ USING ${column}::timestamptz;`);
+    } catch {
+      // Already TIMESTAMPTZ or conversion not needed — safe to ignore
+    }
+  }
+
   console.log("PostgreSQL database initialized with schema");
 
   queryFn = async (sql: string, params?: unknown[]): Promise<QueryResult> => {
@@ -247,4 +273,4 @@ if (isSQLite) {
 }
 
 export const query = queryFn;
-export { isSQLite };
+export { isSQLite, formatDateValue };

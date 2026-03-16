@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { query, isSQLite } from "../db.js";
+import { query, isSQLite, formatDateValue } from "../db.js";
 import { authMiddleware } from "../auth.js";
 
 const router = Router();
@@ -123,7 +123,7 @@ router.get("/daily", authMiddleware, async (req, res) => {
     // Group by date
     const dailyMap: Record<string, Record<string, number>> = {};
     for (const row of result.rows) {
-      const date = String(row.date);
+      const date = formatDateValue(row.date);
       if (!dailyMap[date]) dailyMap[date] = {};
       dailyMap[date][row.habit_type as string] = Number(row.count);
     }

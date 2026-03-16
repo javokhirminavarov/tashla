@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { query, isSQLite } from "../db.js";
+import { query, isSQLite, formatDateValue } from "../db.js";
 import { authMiddleware } from "../auth.js";
 
 const router = Router();
@@ -49,7 +49,7 @@ router.get("/money", authMiddleware, async (req, res) => {
     // Group daily results by date+habit
     const dailyMap: Record<string, Record<string, number>> = {};
     for (const row of dailyResult.rows) {
-      const date = String(row.date);
+      const date = formatDateValue(row.date);
       if (!dailyMap[date]) dailyMap[date] = {};
       dailyMap[date][row.habit_type as string] = Number(row.count);
     }
@@ -123,7 +123,7 @@ router.get("/streak", authMiddleware, async (req, res) => {
     // Build map: date -> habit -> count
     const dailyMap: Record<string, Record<string, number>> = {};
     for (const row of logsResult.rows) {
-      const date = String(row.date);
+      const date = formatDateValue(row.date);
       if (!dailyMap[date]) dailyMap[date] = {};
       dailyMap[date][row.habit_type as string] = Number(row.count);
     }
