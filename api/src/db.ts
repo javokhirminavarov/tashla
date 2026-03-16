@@ -273,4 +273,4 @@ if (isSQLite) {
 }
 
 export const query = queryFn;
-export { isSQLite, formatDateValue };
+export { isSQLite };

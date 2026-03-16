@@ -62,7 +62,7 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
 
     const enriched = milestones.rows.map((m) => {
       const hoursAfter = Number(m.hours_after);
-      const unlocked = referenceTime ? hoursSinceRef >= hoursAfter : false;
+      const unlocked = rawRef ? hoursSinceRef >= hoursAfter : false;
 
       let unlocked_ago: string | undefined;
       if (unlocked) {
@@ -73,7 +73,7 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
       }
 
       let time_until: string | undefined;
-      if (!unlocked && referenceTime) {
+      if (!unlocked && rawRef) {
         const diff = hoursAfter - hoursSinceRef;
         if (diff < 1) time_until = `${Math.round(diff * 60)} daqiqa`;
         else if (diff < 24) time_until = `${Math.round(diff)} soat`;
