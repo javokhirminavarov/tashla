@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { haptic } from "../lib/telegram";
 import { api } from "../lib/api";
@@ -31,6 +31,15 @@ export default function QuitPlanSheet({
   const [targetLimit, setTargetLimit] = useState(0);
   const [speedIdx, setSpeedIdx] = useState(1); // default medium
   const [saving, setSaving] = useState(false);
+
+  // Reset selected habit when sheet opens with new profiles
+  useEffect(() => {
+    if (open && profiles.length > 0) {
+      setSelectedHabit(profiles[0].habit_type);
+      setTargetLimit(0);
+      setSpeedIdx(1);
+    }
+  }, [open, profiles]);
 
   if (!open) return null;
 

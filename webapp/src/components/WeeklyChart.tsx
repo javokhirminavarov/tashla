@@ -48,18 +48,14 @@ export default function WeeklyChart({
     });
   }
 
-  const formatDate = (dateStr: string, index: number) => {
+  const formatDate = (dateStr: string) => {
     const parts = dateStr.split("-");
     const d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
     if (days <= 7) {
       return UZ_DAYS_SHORT[d.getUTCDay()];
     }
-    // For month view, show day-of-month every 5th tick to avoid crowding
-    const dayOfMonth = d.getUTCDate();
-    if (index % 5 === 0 || index === filledData.length - 1) {
-      return String(dayOfMonth);
-    }
-    return "";
+    // For month view, show day of month
+    return String(d.getUTCDate());
   };
 
   const activeHabits = habitType
@@ -79,6 +75,7 @@ export default function WeeklyChart({
           <XAxis
             dataKey="date"
             tickFormatter={formatDate}
+            interval={days <= 7 ? 0 : 4}
             stroke="#5C716A"
             fontSize={12}
             fontFamily="Lexend"
