@@ -28,7 +28,7 @@ export default function Navigation() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-1 px-4 min-w-[64px] transition-colors active:scale-[0.97] transition-transform duration-100 ${
+              className={`flex flex-1 flex-col items-center gap-1 py-1 px-4 min-w-[64px] transition-colors active:scale-[0.97] transition-transform duration-100 ${
                 active ? "text-brand" : "text-[#5C716A]"
               }`}
             >

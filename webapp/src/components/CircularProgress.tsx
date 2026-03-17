@@ -11,9 +11,9 @@ export default function CircularProgress({
   max,
   label,
 }: CircularProgressProps) {
-  const size = 160;
-  const strokeWidth = 13;
-  const radius = 68;
+  const size = 192;
+  const strokeWidth = 14;
+  const radius = 82;
   const circumference = 2 * Math.PI * radius;
 
   const pct = max > 0 ? Math.min(current / max, 1) : 0;
@@ -22,7 +22,7 @@ export default function CircularProgress({
   const zoneColor = getZoneColor(current, max);
 
   return (
-    <div className="relative w-[160px] h-[160px]">
+    <div className="relative w-[192px] h-[192px] shadow-[0_0_30px_rgba(31,199,98,0.12)] rounded-full">
       <svg className="w-full h-full -rotate-90">
         {/* Background circle */}
         <circle
@@ -44,7 +44,7 @@ export default function CircularProgress({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="transition-all duration-1000 ease-out"
+          className="transition-all duration-500 ease-out"
         />
       </svg>
       {/* Center text */}

@@ -45,7 +45,7 @@ export default function BottomSheet({
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
       {/* Sheet */}
-      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-xl px-4 py-3.5 pb-8 animate-slide-up border-t border-white/[0.08]">
+      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-2xl px-5 pt-4 pb-8 animate-slide-up border-t border-white/[0.08]">
         {/* Drag handle */}
         <div className="flex justify-center mb-4">
           <div className="w-10 h-1 rounded-full bg-border" />
@@ -55,7 +55,7 @@ export default function BottomSheet({
           {t("bottomSheet.title")}
         </h3>
 
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {profiles.map((p) => {
             const ht = p.habit_type;
             const count = todayCounts[ht] ?? 0;
@@ -66,7 +66,7 @@ export default function BottomSheet({
             return (
               <div
                 key={ht}
-                className="flex items-center justify-between bg-bg-surface rounded-lg p-3"
+                className="flex items-center justify-between bg-bg-surface rounded-xl p-4"
               >
                 <div className="flex items-center gap-3">
                   <div

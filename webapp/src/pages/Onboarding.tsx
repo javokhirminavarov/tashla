@@ -156,7 +156,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   if (step === 1) {
     return (
       <div className="min-h-screen bg-bg font-display flex flex-col">
-        <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 pb-32">
+        <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 pb-28">
           <ProgressDots total={3} current={0} />
 
           <div className="mb-8 text-center animate-fade-in-up">
@@ -168,7 +168,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 flex-1">
+          <div className="flex flex-col gap-3 flex-1">
             {ALL_HABITS.map((ht) => {
               const active = selected.includes(ht);
               return (
@@ -179,7 +179,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 >
                   {/* Background container */}
                   <div
-                    className={`absolute inset-0 rounded-xl transition-all ${
+                    className={`absolute inset-0 rounded-2xl transition-all ${
                       active
                         ? "bg-brand/10 border-2 border-brand"
                         : "bg-bg-card border border-white/[0.06]"
@@ -187,14 +187,14 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   >
                     {!active && (
                       <div
-                        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl"
+                        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl"
                         style={{ backgroundColor: HABIT_COLORS[ht] }}
                       />
                     )}
                   </div>
                   {/* Content */}
                   <div
-                    className={`relative flex items-center px-4 py-3.5 gap-5 z-10 ${
+                    className={`relative flex items-center p-5 gap-5 z-10 ${
                       active ? "" : "pl-7"
                     }`}
                   >
@@ -264,7 +264,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     const ht = current.habit_type;
     return (
       <div className="min-h-screen bg-bg font-display flex flex-col">
-        <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 pb-32">
+        <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 pb-28">
           <ProgressDots total={3} current={1} />
 
           <div className="flex items-center gap-3 mb-2">
@@ -286,7 +286,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
           <div className="space-y-3 flex-1 mt-6">
             {/* Baseline stepper */}
-            <div className="bg-bg-card rounded-xl px-4 py-3.5">
+            <div className="bg-bg-card rounded-2xl p-5">
               <label className="block text-sm text-text-secondary mb-4 font-medium">
                 {t("onboarding.baselineLabel")}
               </label>
@@ -316,7 +316,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             </div>
 
             {/* Cost stepper */}
-            <div className="bg-bg-card rounded-xl px-4 py-3.5">
+            <div className="bg-bg-card rounded-2xl p-5">
               <label className="block text-sm text-text-secondary mb-4 font-medium">
                 {t("onboarding.costLabel")}
               </label>
@@ -342,7 +342,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
             {/* Yearly cost highlight */}
             {cost > 0 && (
-              <div className="bg-danger/10 rounded-xl px-4 py-3.5 text-center border border-danger/20">
+              <div className="bg-danger/10 rounded-2xl p-4 text-center border border-danger/20">
                 <p className="text-sm text-text-secondary mb-1">
                   {t("onboarding.yearlyCost")}
                 </p>
@@ -394,11 +394,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         {t("onboarding.readyDescription", { count: configs.length })}
       </p>
 
-      <div className="w-full max-w-xs space-y-2.5 mb-10">
+      <div className="w-full max-w-xs space-y-3 mb-10">
         {configs.map((cfg) => (
           <div
             key={cfg.habit_type}
-            className="flex items-center justify-between bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06]"
+            className="flex items-center justify-between bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06]"
           >
             <div className="flex items-center gap-3">
               <div

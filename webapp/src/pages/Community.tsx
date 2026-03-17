@@ -37,7 +37,7 @@ export default function Community() {
 
       <main className="flex-1 px-5 py-4">
         {/* Action buttons */}
-        <div className="flex gap-2.5 mb-3">
+        <div className="flex gap-3 mb-4">
           <button
             onClick={() => { setCreateOpen(true); haptic("light"); }}
             className="flex-1 bg-[#1fc762] text-[#0d1a12] font-semibold py-3 rounded-xl text-sm transition-all active:scale-[0.97] shadow-glow"
@@ -78,7 +78,7 @@ export default function Community() {
               <button
                 key={group.id}
                 onClick={() => { navigate(`/group/${group.id}`); haptic("light"); }}
-                className="w-full bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] flex items-center justify-between text-left transition-transform duration-100 active:scale-[0.97]"
+                className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] flex items-center justify-between text-left transition-transform duration-100 active:scale-[0.97]"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-brand/20 flex items-center justify-center text-brand">
@@ -98,7 +98,7 @@ export default function Community() {
             ))}
 
             {groups.length < 3 && (
-              <div className="flex flex-col items-center py-6 text-center">
+              <div className="flex flex-col items-center py-4 text-center">
                 <span className="material-symbols-outlined text-[28px] text-[#5C716A] mb-2">
                   diversity_3
                 </span>

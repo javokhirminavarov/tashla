@@ -43,7 +43,7 @@ export default function JoinGroupSheet({
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
-      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-xl px-4 py-3.5 pb-8 animate-slide-up border-t border-white/[0.08]">
+      <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-2xl px-5 pt-4 pb-8 animate-slide-up border-t border-white/[0.08]">
         <div className="flex justify-center mb-4">
           <div className="w-10 h-1 rounded-full bg-white/[0.06]" />
         </div>

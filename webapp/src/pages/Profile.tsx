@@ -137,9 +137,9 @@ export default function Profile({
         <div className="w-10" />
       </header>
 
-      <main className="flex-1 px-5 py-4 space-y-3">
+      <main className="flex-1 px-5 py-4 space-y-4">
         {/* User info card */}
-        <div className="bg-bg-card rounded-xl px-4 py-3.5 shadow-card border border-white/[0.06] flex items-center gap-4">
+        <div className="bg-bg-card rounded-2xl p-5 shadow-card border border-white/[0.06] flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-brand/20 flex items-center justify-center text-brand">
             <span className="material-symbols-outlined text-[28px]">
               person
@@ -157,7 +157,7 @@ export default function Profile({
 
         {/* Language selector */}
         <div>
-          <h2 className="font-semibold text-text-secondary text-sm mb-3 px-1">
+          <h2 className="text-base font-semibold text-text-primary mb-3">
             {t("profile.language")}
           </h2>
           <div className="flex gap-2">
@@ -186,10 +186,10 @@ export default function Profile({
 
         {/* Notification settings */}
         <div>
-          <h2 className="font-semibold text-text-secondary text-sm mb-3 px-1">
+          <h2 className="text-base font-semibold text-text-primary mb-3">
             {t("profile.notifications")}
           </h2>
-          <div className="bg-bg-card rounded-xl px-4 py-3.5 shadow-card border border-white/[0.06] space-y-3">
+          <div className="bg-bg-card rounded-2xl p-5 shadow-card border border-white/[0.06] space-y-3">
             {/* Enable toggle */}
             <div className="flex items-center justify-between">
               <span className="text-text-primary text-sm font-medium">
@@ -270,7 +270,7 @@ export default function Profile({
 
         {/* Quit Plan section */}
         <div>
-          <h2 className="font-semibold text-text-secondary text-sm mb-3 px-1">
+          <h2 className="text-base font-semibold text-text-primary mb-3">
             {t("profile.quitPlan")}
           </h2>
           {quitPlans.length > 0 ? (
@@ -278,7 +278,7 @@ export default function Profile({
               {quitPlans.map((plan) => {
                 const activeStep = plan.steps.find((s) => s.status === "active");
                 return (
-                  <div key={plan.id} className="bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06]">
+                  <div key={plan.id} className="bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06]">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-text-primary">
                         {t(`habits.${plan.habit_type}`)}
@@ -339,7 +339,7 @@ export default function Profile({
           ) : (
             <button
               onClick={() => { setPlanSheetOpen(true); haptic("light"); }}
-              className="w-full bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] text-center text-brand font-semibold text-sm active:scale-[0.97] transition-transform duration-100"
+              className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] text-center text-brand font-semibold text-sm active:scale-[0.97] transition-transform duration-100"
             >
               + {t("quitPlan.startPlan")}
             </button>
@@ -348,7 +348,7 @@ export default function Profile({
 
         {/* Habits section */}
         <div>
-          <h2 className="font-semibold text-text-secondary text-sm mb-3 px-1">
+          <h2 className="text-base font-semibold text-text-primary mb-3">
             {t("profile.activeHabits")}
           </h2>
           <div className="space-y-3">
@@ -361,7 +361,7 @@ export default function Profile({
                 return (
                   <div
                     key={ht}
-                    className="bg-bg-card rounded-xl px-4 py-3.5 space-y-3 shadow-card border border-white/[0.06]"
+                    className="bg-bg-card rounded-2xl p-5 space-y-3 shadow-card border border-white/[0.06]"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -425,7 +425,7 @@ export default function Profile({
               return (
                 <div
                   key={ht}
-                  className="bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] flex items-center justify-between"
+                  className="bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -480,7 +480,7 @@ export default function Profile({
                 {t("profile.addHabitHint")}
               </p>
               {addingHabit ? (
-                <div className="bg-bg-card rounded-xl px-4 py-3.5 space-y-3 shadow-card border border-white/[0.06]">
+                <div className="bg-bg-card rounded-2xl p-5 space-y-3 shadow-card border border-white/[0.06]">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -561,7 +561,7 @@ export default function Profile({
         </div>
 
         {/* App version */}
-        <div className="text-center text-xs text-text-muted pt-4 pb-2">
+        <div className="text-center text-xs text-text-muted pt-2 pb-1">
           TASHLA v1.0.0
         </div>
       </main>
@@ -569,7 +569,7 @@ export default function Profile({
       {/* Delete confirmation overlay */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-bg-card rounded-xl px-4 py-3.5 mx-5 max-w-sm w-full border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
+          <div className="bg-bg-card rounded-2xl p-5 mx-5 max-w-sm w-full border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
             <p className="text-lg font-semibold text-text-primary mb-2">{t("profile.deleteHabitTitle")}</p>
             <p className="text-sm text-text-secondary mb-4">
               {t("profile.deleteHabitMessage", { habit: t(`habits.${confirmDelete}`) })}

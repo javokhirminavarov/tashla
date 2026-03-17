@@ -65,7 +65,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)]">
       {/* Header */}
-      <header className="pt-8 pb-4 px-6 flex items-center justify-between">
+      <header className="pt-4 pb-3 px-5 flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-text-muted text-sm font-medium">
             {weekday}
@@ -85,9 +85,9 @@ export default function Dashboard({ profiles }: DashboardProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center px-6">
+      <main className="flex-1 flex flex-col items-center px-5">
         {/* Hero Progress Ring */}
-        <div className="mt-4 mb-4 flex flex-col items-center justify-center">
+        <div className="mt-2 mb-3 flex flex-col items-center justify-center">
           <CircularProgress
             current={selectedCount}
             max={selectedLimit}
@@ -104,7 +104,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
 
         {/* Habit Strip */}
         {profiles.length > 1 && (
-          <div className="w-full flex gap-2.5 mb-3 overflow-x-auto py-1">
+          <div className="w-full flex gap-3 mb-4 overflow-x-auto py-1">
             {profiles.map((profile) => (
               <HabitCard
                 key={profile.habit_type}
@@ -129,7 +129,7 @@ export default function Dashboard({ profiles }: DashboardProps) {
           if (!activeStep) return null;
           const daysLeft = Math.max(0, Math.ceil((new Date(activeStep.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
           return (
-            <div className="w-full bg-bg-card rounded-xl p-3.5 shadow-card border border-border mt-4">
+            <div className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-border mt-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="material-symbols-outlined text-brand text-[20px]">trending_down</span>
                 <span className="text-sm font-semibold text-text-primary">

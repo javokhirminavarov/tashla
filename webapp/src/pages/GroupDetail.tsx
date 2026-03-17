@@ -80,9 +80,9 @@ export default function GroupDetail() {
         <div className="w-10" />
       </header>
 
-      <main className="flex-1 px-5 py-4 space-y-3">
+      <main className="flex-1 px-5 py-4 space-y-4">
         {/* Invite code card */}
-        <div className="bg-bg-card rounded-xl p-3.5 shadow-card border border-white/[0.06] flex items-center justify-between">
+        <div className="bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] flex items-center justify-between">
           <div>
             <p className="text-xs text-text-muted mb-0.5">{t("community.inviteCode")}</p>
             <p className="text-lg font-semibold text-brand tracking-widest">{group.invite_code}</p>
@@ -96,7 +96,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Leaderboard */}
-        <h2 className="font-semibold text-text-secondary text-sm px-1">
+        <h2 className="text-base font-semibold text-text-primary">
           {t("community.leaderboard")} · {group.members.length} {t("community.members")}
         </h2>
 
@@ -110,7 +110,7 @@ export default function GroupDetail() {
             return (
               <div
                 key={member.user_id}
-                className={`bg-bg-card rounded-xl p-3.5 shadow-card border ${
+                className={`bg-bg-card rounded-2xl p-4 shadow-card border ${
                   rank === 1
                     ? "border-[#FFD700]/20 shadow-[0_0_20px_rgba(255,215,0,0.08)]"
                     : "border-white/[0.06]"

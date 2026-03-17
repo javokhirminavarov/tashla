@@ -97,7 +97,7 @@ export default function Stats({ profiles }: StatsProps) {
         <div className="w-10" />
       </header>
 
-      <main className="flex-1 flex flex-col gap-3 px-5 pb-28">
+      <main className="flex-1 flex flex-col gap-4 px-5 pb-28">
         {/* Segmented Control */}
         <div className="flex p-1 bg-bg-surface rounded-full">
           {periods.map((opt) => (
@@ -145,7 +145,7 @@ export default function Stats({ profiles }: StatsProps) {
         ) : (
           <>
             {/* Summary Hero Card */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-brand to-brand-dark px-4 py-3.5 shadow-soft shadow-brand/30">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-brand to-brand-dark p-5 shadow-soft shadow-brand/30">
               <div className="absolute right-0 top-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
               <div className="relative z-10">
@@ -188,7 +188,7 @@ export default function Stats({ profiles }: StatsProps) {
             </div>
 
             {/* Section Title */}
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-between mt-1">
               <h3 className="text-lg font-semibold text-text-primary">
                 {t("stats.habitsAnalysis")}
               </h3>
@@ -205,7 +205,7 @@ export default function Stats({ profiles }: StatsProps) {
                   key={ht}
                   className="flex flex-col overflow-hidden rounded-xl bg-bg-card shadow-card border border-white/[0.06]"
                 >
-                  <div className="px-4 py-3.5 pb-0">
+                  <div className="px-5 pt-5 pb-0">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div
