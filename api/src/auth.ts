@@ -64,7 +64,7 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  if (process.env.DEV_MODE === "true") {
+  if (process.env.DEV_MODE === "true" && process.env.NODE_ENV !== "production") {
     const devTelegramId = parseInt(process.env.DEV_TELEGRAM_ID || "123456789", 10);
     const user = await upsertUser({ id: devTelegramId, first_name: "Dev", username: "dev_user" });
     req.user = user;

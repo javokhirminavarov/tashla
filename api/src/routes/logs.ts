@@ -9,14 +9,20 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const { habit_type, quantity } = req.body;
 
-    if (!habit_type) {
-      res.status(400).json({ error: "habit_type is required" });
+    if (!habit_type || !["sigaret", "nos", "alkogol"].includes(habit_type)) {
+      res.status(400).json({ error: "Valid habit_type is required" });
+      return;
+    }
+
+    const qty = quantity !== undefined ? Math.floor(Number(quantity)) : 1;
+    if (!Number.isFinite(qty) || qty < 1 || qty > 1000) {
+      res.status(400).json({ error: "quantity must be between 1 and 1000" });
       return;
     }
 
     await query(
       `INSERT INTO usage_logs (user_id, habit_type, quantity) VALUES ($1, $2, $3)`,
-      [req.user.id, habit_type, quantity ?? 1]
+      [req.user.id, habit_type, qty]
     );
 
     // Get today's count
@@ -45,8 +51,8 @@ router.delete("/last", authMiddleware, async (req, res) => {
   try {
     const { habit_type } = req.body;
 
-    if (!habit_type) {
-      res.status(400).json({ error: "habit_type is required" });
+    if (!habit_type || !["sigaret", "nos", "alkogol"].includes(habit_type)) {
+      res.status(400).json({ error: "Valid habit_type is required" });
       return;
     }
 
@@ -104,7 +110,8 @@ router.get("/today", authMiddleware, async (req, res) => {
 // GET /api/logs/daily?days=7 — daily totals for last N days
 router.get("/daily", authMiddleware, async (req, res) => {
   try {
-    const days = parseInt(req.query.days as string, 10) || 7;
+    const rawDays = parseInt(req.query.days as string, 10);
+    const days = Number.isFinite(rawDays) && rawDays >= 1 && rawDays <= 365 ? rawDays : 7;
 
     const dateExpr = isSQLite ? "date(logged_at)" : "logged_at::date";
     const dateOffset = isSQLite

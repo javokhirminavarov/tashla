@@ -26,13 +26,31 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const { habit_type, daily_baseline, daily_limit, cost_per_unit, target_quit_date } = req.body;
 
-    if (!habit_type || !daily_baseline) {
+    if (!habit_type || daily_baseline === undefined) {
       res.status(400).json({ error: "habit_type and daily_baseline are required" });
       return;
     }
 
     if (!["sigaret", "nos", "alkogol"].includes(habit_type)) {
       res.status(400).json({ error: "Invalid habit_type" });
+      return;
+    }
+
+    const baseline = Math.floor(Number(daily_baseline));
+    if (!Number.isFinite(baseline) || baseline < 1 || baseline > 1000) {
+      res.status(400).json({ error: "daily_baseline must be between 1 and 1000" });
+      return;
+    }
+
+    const limit = daily_limit !== undefined ? Math.floor(Number(daily_limit)) : null;
+    if (limit !== null && (!Number.isFinite(limit) || limit < 0 || limit > 1000)) {
+      res.status(400).json({ error: "daily_limit must be between 0 and 1000" });
+      return;
+    }
+
+    const cost = cost_per_unit !== undefined ? Math.floor(Number(cost_per_unit)) : 0;
+    if (!Number.isFinite(cost) || cost < 0 || cost > 10000000) {
+      res.status(400).json({ error: "cost_per_unit must be between 0 and 10000000" });
       return;
     }
 
@@ -49,9 +67,9 @@ router.post("/", authMiddleware, async (req, res) => {
       [
         req.user.id,
         habit_type,
-        daily_baseline,
-        daily_limit ?? null,
-        cost_per_unit ?? 0,
+        baseline,
+        limit,
+        cost,
         target_quit_date ?? null,
       ]
     );
@@ -118,6 +136,15 @@ router.patch("/me/notifications", authMiddleware, async (req, res) => {
       params.push(notifications_enabled ? 1 : 0);
     }
     if (notification_time !== undefined) {
+      if (typeof notification_time !== "string" || !/^\d{2}:\d{2}$/.test(notification_time)) {
+        res.status(400).json({ error: "notification_time must be in HH:MM format" });
+        return;
+      }
+      const [hh, mm] = notification_time.split(":").map(Number);
+      if (hh < 0 || hh > 23 || mm < 0 || mm > 59) {
+        res.status(400).json({ error: "notification_time must be a valid time (00:00-23:59)" });
+        return;
+      }
       updates.push(`notification_time = $${idx++}`);
       params.push(notification_time);
     }

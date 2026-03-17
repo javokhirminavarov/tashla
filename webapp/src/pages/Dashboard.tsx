@@ -30,11 +30,15 @@ export default function Dashboard({ profiles }: DashboardProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [streaks, setStreaks] = useState<Record<string, number>>({});
   const [quitPlans, setQuitPlans] = useState<QuitPlan[]>([]);
+  const [dataError, setDataError] = useState(false);
 
   useEffect(() => {
-    api.getMoneySaved().then(setMoney).catch(console.error);
-    api.getStreaks().then(setStreaks).catch(console.error);
-    api.getQuitPlans().then(setQuitPlans).catch(console.error);
+    setDataError(false);
+    Promise.all([
+      api.getMoneySaved().then(setMoney),
+      api.getStreaks().then(setStreaks),
+      api.getQuitPlans().then(setQuitPlans),
+    ]).catch(() => setDataError(true));
   }, [todayCounts]);
 
   const handleLog = () => {
@@ -114,6 +118,24 @@ export default function Dashboard({ profiles }: DashboardProps) {
                 onSelect={() => setSelectedHabit(profile.habit_type)}
               />
             ))}
+          </div>
+        )}
+
+        {/* Error banner */}
+        {dataError && (
+          <div className="w-full bg-[#EF4444]/10 rounded-xl p-3 border border-[#EF4444]/20 flex items-center justify-between mb-2">
+            <span className="text-xs text-[#EF4444]">{t("common.error")}</span>
+            <button
+              onClick={() => {
+                setDataError(false);
+                api.getMoneySaved().then(setMoney).catch(() => setDataError(true));
+                api.getStreaks().then(setStreaks).catch(() => setDataError(true));
+                api.getQuitPlans().then(setQuitPlans).catch(() => setDataError(true));
+              }}
+              className="text-xs text-[#1fc762] font-semibold active:scale-[0.97] transition-transform"
+            >
+              {t("common.retry")}
+            </button>
           </div>
         )}
 

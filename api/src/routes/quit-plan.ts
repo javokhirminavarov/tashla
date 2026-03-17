@@ -78,9 +78,29 @@ router.post("/", authMiddleware, async (req, res) => {
       return;
     }
 
-    const targetLim = target_limit ?? 0;
-    const reductionPct = reduction_percent ?? 15;
-    const stepDays = step_duration_days ?? 7;
+    const startLim = Math.floor(Number(start_limit));
+    if (!Number.isFinite(startLim) || startLim < 1 || startLim > 1000) {
+      res.status(400).json({ error: "start_limit must be between 1 and 1000" });
+      return;
+    }
+
+    const targetLim = target_limit !== undefined ? Math.floor(Number(target_limit)) : 0;
+    if (!Number.isFinite(targetLim) || targetLim < 0 || targetLim > 1000) {
+      res.status(400).json({ error: "target_limit must be between 0 and 1000" });
+      return;
+    }
+
+    const reductionPct = reduction_percent !== undefined ? Math.floor(Number(reduction_percent)) : 15;
+    if (!Number.isFinite(reductionPct) || reductionPct < 5 || reductionPct > 30) {
+      res.status(400).json({ error: "reduction_percent must be between 5 and 30" });
+      return;
+    }
+
+    const stepDays = step_duration_days !== undefined ? Math.floor(Number(step_duration_days)) : 7;
+    if (!Number.isFinite(stepDays) || stepDays < 1 || stepDays > 30) {
+      res.status(400).json({ error: "step_duration_days must be between 1 and 30" });
+      return;
+    }
 
     // Upsert plan
     const planResult = await query(
@@ -95,7 +115,7 @@ router.post("/", authMiddleware, async (req, res) => {
          is_active = 1,
          started_at = ${isSQLite ? "datetime('now')" : "NOW()"}
        RETURNING id`,
-      [req.user.id, habit_type, start_limit, targetLim, reductionPct, stepDays]
+      [req.user.id, habit_type, startLim, targetLim, reductionPct, stepDays]
     );
 
     const planId = Number(planResult.rows[0].id);
@@ -104,7 +124,7 @@ router.post("/", authMiddleware, async (req, res) => {
     await query(`DELETE FROM quit_plan_steps WHERE plan_id = $1`, [planId]);
 
     // Generate new steps
-    const steps = generateSteps(start_limit, targetLim, reductionPct, stepDays, new Date());
+    const steps = generateSteps(startLim, targetLim, reductionPct, stepDays, new Date());
 
     // Insert steps
     for (const step of steps) {
@@ -132,7 +152,7 @@ router.post("/", authMiddleware, async (req, res) => {
       data: {
         ...planResult.rows[0],
         habit_type,
-        start_limit,
+        start_limit: startLim,
         target_limit: targetLim,
         reduction_percent: reductionPct,
         step_duration_days: stepDays,
@@ -218,7 +238,12 @@ router.delete("/:habitType", authMiddleware, async (req, res) => {
 router.post("/:habitType/adjust", authMiddleware, async (req, res) => {
   try {
     const { habitType } = req.params;
-    const { direction } = req.body; // "faster" or "slower"
+    const { direction } = req.body;
+
+    if (!direction || !["faster", "slower"].includes(direction)) {
+      res.status(400).json({ error: "direction must be 'faster' or 'slower'" });
+      return;
+    }
 
     const plan = await query(
       `SELECT * FROM quit_plans WHERE user_id = $1 AND habit_type = $2 AND is_active = 1`,

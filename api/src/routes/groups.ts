@@ -19,6 +19,11 @@ router.post("/", authMiddleware, async (req, res) => {
       return;
     }
 
+    if (name.trim().length > 100) {
+      res.status(400).json({ error: "Group name must be 100 characters or less" });
+      return;
+    }
+
     const inviteCode = generateInviteCode();
 
     const groupResult = await query(
@@ -73,6 +78,10 @@ router.get("/", authMiddleware, async (req, res) => {
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const groupId = parseInt(req.params.id, 10);
+    if (!Number.isFinite(groupId) || groupId < 1) {
+      res.status(400).json({ error: "Invalid group id" });
+      return;
+    }
 
     // Check membership
     const membership = await query(
@@ -323,6 +332,10 @@ router.post("/join", authMiddleware, async (req, res) => {
 router.delete("/:id/leave", authMiddleware, async (req, res) => {
   try {
     const groupId = parseInt(req.params.id, 10);
+    if (!Number.isFinite(groupId) || groupId < 1) {
+      res.status(400).json({ error: "Invalid group id" });
+      return;
+    }
 
     await query(
       `DELETE FROM group_members WHERE group_id = $1 AND user_id = $2`,
@@ -350,6 +363,10 @@ router.delete("/:id/leave", authMiddleware, async (req, res) => {
 router.patch("/:id/privacy", authMiddleware, async (req, res) => {
   try {
     const groupId = parseInt(req.params.id, 10);
+    if (!Number.isFinite(groupId) || groupId < 1) {
+      res.status(400).json({ error: "Invalid group id" });
+      return;
+    }
     const { hide_alkogol } = req.body;
 
     await query(

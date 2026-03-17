@@ -266,10 +266,28 @@ if (isSQLite) {
 
   console.log("PostgreSQL database initialized with schema");
 
+  (globalThis as Record<string, unknown>).__pgPool = pool;
+
   queryFn = async (sql: string, params?: unknown[]): Promise<QueryResult> => {
     const result = await pool.query(sql, params);
     return { rows: result.rows, rowCount: result.rowCount ?? 0 };
   };
+}
+
+export function closePool(): void {
+  try {
+    if (isSQLite) {
+      const sqliteDb = (globalThis as Record<string, unknown>).__sqliteDb as { close: () => void } | undefined;
+      sqliteDb?.close();
+      console.log("SQLite connection closed");
+    } else {
+      const pool = (globalThis as Record<string, unknown>).__pgPool as { end: () => Promise<void> } | undefined;
+      pool?.end();
+      console.log("PostgreSQL pool closed");
+    }
+  } catch (err) {
+    console.error("Error closing database:", err);
+  }
 }
 
 export const query = queryFn;

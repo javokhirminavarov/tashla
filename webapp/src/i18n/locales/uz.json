@@ -8,7 +8,8 @@
     "save": "Saqlash",
     "cancel": "Bekor",
     "saving": "Saqlanmoqda...",
-    "today": "Bugun"
+    "today": "Bugun",
+    "retry": "Qayta urinish"
   },
   "habits": {
     "sigaret": "Sigaret",

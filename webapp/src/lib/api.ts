@@ -17,6 +17,7 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 async function apiCall<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
+    signal: options?.signal ?? AbortSignal.timeout(10000),
     headers: {
       "Content-Type": "application/json",
       "X-Telegram-Init-Data": tg.initData,
