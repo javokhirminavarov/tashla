@@ -145,46 +145,34 @@ export default function Stats({ profiles }: StatsProps) {
         ) : (
           <>
             {/* Summary Hero Card */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-brand to-brand-dark p-5 shadow-soft shadow-brand/30">
-              <div className="absolute right-0 top-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-[#F1F5F2]/90">
-                    {t("stats.overallStatus")}
-                  </span>
-                  <span className="material-symbols-outlined text-[#F1F5F2]/80">
-                    trending_down
+            <div className="rounded-xl bg-gradient-to-br from-brand to-brand-dark p-4 shadow-soft shadow-brand/30">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium text-[#F1F5F2]/90">
+                  {t("stats.overallStatus")}
+                </span>
+                <span className="material-symbols-outlined text-[18px] text-[#F1F5F2]/80">
+                  trending_down
+                </span>
+              </div>
+              <h2 className="text-xl font-light tracking-tight text-[#F1F5F2] mb-1">
+                {overallPct >= 70
+                  ? t("stats.excellent")
+                  : overallPct >= 40
+                  ? t("stats.good")
+                  : t("stats.keepGoing")}
+              </h2>
+              <p className="text-xs text-[#F1F5F2]/80 mb-2">
+                {t("stats.completionMessage", { period: periodLabel, pct: overallPct })}
+              </p>
+
+              {bestHabit && (
+                <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-2.5 py-1.5">
+                  <span className="material-symbols-outlined text-[16px] text-[#F1F5F2]/90">star</span>
+                  <span className="text-xs font-semibold text-[#F1F5F2]">
+                    {t("stats.bestResult")}: {t(`habits.${bestHabit.ht}`)} (-{bestHabit.completionPct}%)
                   </span>
                 </div>
-                <h2 className="text-3xl font-light tracking-tight text-[#F1F5F2] mb-1">
-                  {overallPct >= 70
-                    ? t("stats.excellent")
-                    : overallPct >= 40
-                    ? t("stats.good")
-                    : t("stats.keepGoing")}
-                </h2>
-                <p className="text-sm text-[#F1F5F2]/80 mb-3">
-                  {t("stats.completionMessage", { period: periodLabel, pct: overallPct })}
-                </p>
-
-                {bestHabit && (
-                  <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-lg p-2.5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F1F5F2]/90 text-brand">
-                      <span className="material-symbols-outlined">star</span>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[#F1F5F2]/80">
-                        {t("stats.bestResult")}
-                      </p>
-                      <p className="font-semibold text-[#F1F5F2]">
-                        {t(`habits.${bestHabit.ht}`)} (-
-                        {bestHabit.completionPct}%)
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
 
             {/* Section Title */}

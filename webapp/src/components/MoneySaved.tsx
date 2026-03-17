@@ -25,7 +25,7 @@ export default function MoneySaved({ money }: MoneySavedProps) {
         </p>
       </div>
       <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center text-brand">
-        <span className="material-symbols-outlined">savings</span>
+        <span className="material-symbols-outlined">payments</span>
       </div>
     </div>
   );

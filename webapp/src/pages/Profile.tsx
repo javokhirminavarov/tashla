@@ -273,7 +273,7 @@ export default function Profile({
           <h2 className="text-base font-semibold text-text-primary mb-3">
             {t("profile.quitPlan")}
           </h2>
-          {quitPlans.length > 0 ? (
+          {quitPlans.length > 0 && (
             <div className="space-y-3">
               {quitPlans.map((plan) => {
                 const activeStep = plan.steps.find((s) => s.status === "active");
@@ -336,7 +336,8 @@ export default function Profile({
                 );
               })}
             </div>
-          ) : (
+          )}
+          {profiles.filter((p) => !quitPlans.some((q) => q.habit_type === p.habit_type)).length > 0 && (
             <button
               onClick={() => { setPlanSheetOpen(true); haptic("light"); }}
               className="w-full bg-bg-card rounded-2xl p-4 shadow-card border border-white/[0.06] text-center text-brand font-semibold text-sm active:scale-[0.97] transition-transform duration-100"
@@ -598,7 +599,7 @@ export default function Profile({
       <QuitPlanSheet
         open={planSheetOpen}
         onClose={() => setPlanSheetOpen(false)}
-        profiles={profiles}
+        profiles={profiles.filter((p) => !quitPlans.some((q) => q.habit_type === p.habit_type))}
         onCreated={(plan) => setQuitPlans((prev) => [...prev, plan])}
       />
     </div>
