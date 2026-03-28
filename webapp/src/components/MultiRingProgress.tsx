@@ -46,8 +46,8 @@ export default function MultiRingProgress({
         {/* Background track segments with gaps */}
         {N > 1 ? (
           segments.map((seg, i) => {
-            const trackLength = (seg.availableDeg / 360) * circumference;
-            const dashArray = `${trackLength} ${circumference - trackLength}`;
+            const trackLength = (seg.availableDeg / 360) * circumference - strokeWidth;
+            const dashArray = `${Math.max(0, trackLength)} ${circumference - Math.max(0, trackLength)}`;
             const rotateAngle = -90 + seg.startDeg;
             return (
               <circle
@@ -58,7 +58,7 @@ export default function MultiRingProgress({
                 fill="transparent"
                 stroke="#23352b"
                 strokeWidth={strokeWidth}
-                strokeLinecap="butt"
+                strokeLinecap="round"
                 strokeDasharray={dashArray}
                 transform={`rotate(${rotateAngle} ${center} ${center})`}
               />
@@ -79,7 +79,8 @@ export default function MultiRingProgress({
         {segments.map((seg, i) => {
           if (seg.current === 0 || seg.arcDeg <= 0) return null;
 
-          const segLength = (seg.arcDeg / 360) * circumference;
+          const segLength = (seg.arcDeg / 360) * circumference - strokeWidth;
+          if (segLength <= 0) return null;
           const dashArray = `${segLength} ${circumference - segLength}`;
           // -90 shifts SVG's 3 o'clock start to 12 o'clock
           const rotateAngle = -90 + seg.startDeg;
@@ -93,7 +94,7 @@ export default function MultiRingProgress({
               fill="transparent"
               stroke={seg.color}
               strokeWidth={strokeWidth}
-              strokeLinecap="butt"
+              strokeLinecap="round"
               strokeDasharray={dashArray}
               transform={`rotate(${rotateAngle} ${center} ${center})`}
               className="transition-all duration-500 ease-out"
