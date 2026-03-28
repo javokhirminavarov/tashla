@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import CircularProgress from "../components/CircularProgress";
-import HabitCard from "../components/HabitCard";
+import MultiRingProgress from "../components/MultiRingProgress";
+import HabitProgressBars from "../components/HabitProgressBars";
 import BottomSheet from "../components/BottomSheet";
 import MoneySaved from "../components/MoneySaved";
 import { useLogs } from "../hooks/useLogs";
 import { haptic } from "../lib/telegram";
 import { api } from "../lib/api";
+import {
+  HABIT_COLORS,
+} from "../lib/types";
 import type {
   HabitProfile,
   MoneySaved as MoneySavedType,
@@ -54,13 +57,6 @@ export default function Dashboard({ profiles }: DashboardProps) {
     await logUsage(ht);
   };
 
-  const selectedProfile = profiles.find(
-    (p) => p.habit_type === selectedHabit
-  )!;
-  const selectedCount = todayCounts[selectedHabit] ?? 0;
-  const selectedLimit =
-    selectedProfile.daily_limit ?? selectedProfile.daily_baseline;
-
   const now = new Date();
   const weekday = t(`dashboard.weekday_${now.getDay()}`);
   const month = t(`dashboard.month_${now.getMonth()}`);
@@ -90,15 +86,34 @@ export default function Dashboard({ profiles }: DashboardProps) {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center px-5">
-        {/* Hero Progress Ring */}
-        <div className="mt-2 mb-3 flex flex-col items-center justify-center">
-          <CircularProgress
-            current={selectedCount}
-            max={selectedLimit}
-            label={t("common.pieces")}
-          />
+        {/* Hero Card — multi-ring + progress bars */}
+        <div className="w-full bg-[#1a2c22] rounded-2xl p-5 border border-white/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.25)]">
+          <div className="flex items-center gap-5">
+            <MultiRingProgress
+              habits={profiles.map((p) => ({
+                color: HABIT_COLORS[p.habit_type],
+                current: todayCounts[p.habit_type] ?? 0,
+                max: p.daily_limit ?? p.daily_baseline,
+              }))}
+              totalCount={profiles.reduce(
+                (sum, p) => sum + (todayCounts[p.habit_type] ?? 0),
+                0
+              )}
+              label={t("common.pieces")}
+            />
+            <HabitProgressBars
+              habits={profiles.map((p) => ({
+                type: p.habit_type,
+                current: todayCounts[p.habit_type] ?? 0,
+                max: p.daily_limit ?? p.daily_baseline,
+                color: HABIT_COLORS[p.habit_type],
+              }))}
+              selected={selectedHabit}
+              onSelect={setSelectedHabit}
+            />
+          </div>
           {(streaks[selectedHabit] ?? 0) > 0 && (
-            <div className="mt-3 animate-streak-pop">
+            <div className="mt-3 flex justify-center animate-streak-pop">
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-brand/10 text-brand text-sm font-bold">
                 {t("dashboard.streak", { count: streaks[selectedHabit] })}
               </span>
@@ -106,24 +121,9 @@ export default function Dashboard({ profiles }: DashboardProps) {
           )}
         </div>
 
-        {/* Habit Strip */}
-        {profiles.length > 1 && (
-          <div className="w-full flex gap-3 mb-4 overflow-x-auto py-1">
-            {profiles.map((profile) => (
-              <HabitCard
-                key={profile.habit_type}
-                profile={profile}
-                todayCount={todayCounts[profile.habit_type] ?? 0}
-                selected={profile.habit_type === selectedHabit}
-                onSelect={() => setSelectedHabit(profile.habit_type)}
-              />
-            ))}
-          </div>
-        )}
-
         {/* Error banner */}
         {dataError && (
-          <div className="w-full bg-[#EF4444]/10 rounded-xl p-3 border border-[#EF4444]/20 flex items-center justify-between mb-2">
+          <div className="w-full bg-[#EF4444]/10 rounded-xl p-3 border border-[#EF4444]/20 flex items-center justify-between mt-4">
             <span className="text-xs text-[#EF4444]">{t("common.error")}</span>
             <button
               onClick={() => {
@@ -140,7 +140,9 @@ export default function Dashboard({ profiles }: DashboardProps) {
         )}
 
         {/* Savings Card */}
-        <MoneySaved money={money} />
+        <div className="w-full mt-4">
+          <MoneySaved money={money} />
+        </div>
 
         {/* Quit Plan Progress */}
         {(() => {
