@@ -57,7 +57,8 @@
       "WebFetch(domain:tashla-api-production.up.railway.app)",
       "Bash(python3:*)",
       "Bash(npx:*)",
-      "Bash(grep -h \"t\\(\"\"\" webapp/src/**/*.tsx)"
+      "Bash(grep -h \"t\\(\"\"\" webapp/src/**/*.tsx)",
+      "Bash(npm ls:*)"
     ]
   }
 }
