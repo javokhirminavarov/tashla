@@ -58,7 +58,12 @@
       "Bash(python3:*)",
       "Bash(npx:*)",
       "Bash(grep -h \"t\\(\"\"\" webapp/src/**/*.tsx)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(find /d/projects/tashla/api /d/projects/tashla/webapp -maxdepth 2 -type f \\\\\\(-name *.config.* -o -name jest.config.* -o -name .eslintrc* -o -name .prettierrc* -o -name vite.config.* \\\\\\))",
+      "Bash(for dep:*)",
+      "Bash(do echo:*)",
+      "Bash(done)",
+      "Bash(find /d/projects/tashla -maxdepth 2 -type f \\\\\\(-name *.md -o -name *.yml -o -name *.yaml -o -name Dockerfile* -o -name *.config.* \\\\\\))"
     ]
   }
 }

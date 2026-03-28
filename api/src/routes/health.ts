@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { query, formatDateValue } from "../db.js";
+import { query } from "../db.js";
 import { authMiddleware } from "../auth.js";
 
 const router = Router();
