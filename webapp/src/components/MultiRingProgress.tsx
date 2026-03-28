@@ -42,16 +42,37 @@ export default function MultiRingProgress({
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size}>
-        {/* Background track ring */}
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="transparent"
-          stroke="#23352b"
-          strokeWidth={strokeWidth}
-          strokeOpacity={0.6}
-        />
+        {/* Background track segments with gaps */}
+        {N > 1 ? (
+          segments.map((seg, i) => {
+            const trackLength = (usableDeg / 360) * circumference;
+            const dashArray = `${trackLength} ${circumference - trackLength}`;
+            const rotateAngle = -90 + seg.slotStart;
+            return (
+              <circle
+                key={`bg-${i}`}
+                cx={center}
+                cy={center}
+                r={radius}
+                fill="transparent"
+                stroke="#23352b"
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+                strokeDasharray={dashArray}
+                transform={`rotate(${rotateAngle} ${center} ${center})`}
+              />
+            );
+          })
+        ) : (
+          <circle
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="transparent"
+            stroke="#23352b"
+            strokeWidth={strokeWidth}
+          />
+        )}
 
         {/* Segment arcs */}
         {segments.map((seg, i) => {
