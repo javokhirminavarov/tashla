@@ -39,6 +39,10 @@ export default function MultiRingProgress({
   const radius = 62;
   const gapDeg = 8;
 
+  // Round caps extend by strokeWidth/2 beyond the arc endpoint.
+  // Inset arcs by this amount so caps don't overflow into the gap.
+  const capOffsetDeg = ((strokeWidth / 2) / (2 * Math.PI * radius)) * 360;
+
   // Only consider habits with max > 0
   const activeHabits = habits.filter((h) => h.max > 0);
   const N = activeHabits.length;
@@ -63,7 +67,11 @@ export default function MultiRingProgress({
           segments.map((seg, i) => (
             <path
               key={`bg-${i}`}
-              d={describeArc(center, center, radius, seg.startDeg, seg.startDeg + seg.availableDeg)}
+              d={describeArc(
+                center, center, radius,
+                seg.startDeg + capOffsetDeg,
+                seg.startDeg + seg.availableDeg - capOffsetDeg,
+              )}
               fill="none"
               stroke="#23352b"
               strokeWidth={strokeWidth}
@@ -85,10 +93,14 @@ export default function MultiRingProgress({
         {segments.map((seg, i) => {
           if (seg.current === 0 || seg.arcDeg <= 0) return null;
 
+          const insetStart = seg.startDeg + capOffsetDeg;
+          const insetEnd = seg.startDeg + seg.arcDeg - capOffsetDeg;
+          if (insetEnd <= insetStart) return null;
+
           return (
             <path
               key={i}
-              d={describeArc(center, center, radius, seg.startDeg, seg.startDeg + seg.arcDeg)}
+              d={describeArc(center, center, radius, insetStart, insetEnd)}
               fill="none"
               stroke={seg.color}
               strokeWidth={strokeWidth}
