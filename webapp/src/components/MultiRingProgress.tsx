@@ -20,40 +20,24 @@ export default function MultiRingProgress({
   const strokeWidth = 10;
   const radius = 62;
   const circumference = 2 * Math.PI * radius;
-  const gapDegrees = 5;
-  const gapArc = (gapDegrees / 360) * circumference;
+  const gapDeg = 6;
 
-  // Filter habits that have a max > 0
+  // Only consider habits with max > 0
   const activeHabits = habits.filter((h) => h.max > 0);
-  const numActive = activeHabits.length;
+  const N = activeHabits.length;
 
-  // Calculate each habit's ratio (clamped to 1)
-  const ratios = activeHabits.map((h) =>
-    Math.min(h.current / h.max, 1)
-  );
-  const totalRatio = ratios.reduce((s, r) => s + r, 0);
+  // Each habit gets an equal slot of 360/N degrees
+  // Within each slot, gapDeg is reserved for spacing
+  const slotDeg = N > 0 ? 360 / N : 360;
+  const usableDeg = slotDeg - (N > 1 ? gapDeg : 0);
 
-  // Available arc after gaps
-  const totalGap = numActive > 0 ? numActive * gapArc : 0;
-  const availableArc = circumference - totalGap;
-
-  // Each habit's arc length proportional to its ratio
-  const arcLengths = ratios.map((r) =>
-    totalRatio > 0 ? (r / totalRatio) * availableArc : 0
-  );
-
-  // If no data, show equal segments as background guide
-  const showEmpty = totalRatio === 0;
-  const equalArc = numActive > 0 ? availableArc / numActive : 0;
-
-  // Calculate starting angle offset for each segment
-  const startOffsets: number[] = [];
-  let accumulated = 0;
-  for (let i = 0; i < numActive; i++) {
-    startOffsets.push(accumulated);
-    const segArc = showEmpty ? equalArc : arcLengths[i];
-    accumulated += segArc + gapArc;
-  }
+  const segments = activeHabits.map((h, i) => {
+    const ratio = Math.min(h.current / h.max, 1);
+    const arcDeg = ratio * usableDeg;
+    // Slot starts at i * slotDeg, offset by half gap for centering gaps between segments
+    const slotStart = i * slotDeg + (N > 1 ? gapDeg / 2 : 0);
+    return { arcDeg, slotStart, color: h.color, current: h.current };
+  });
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -66,20 +50,18 @@ export default function MultiRingProgress({
           fill="transparent"
           stroke="#23352b"
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          strokeOpacity={0.6}
         />
 
         {/* Segment arcs */}
-        {activeHabits.map((habit, i) => {
-          const segArc = showEmpty ? equalArc : arcLengths[i];
-          if (segArc <= 0) return null;
+        {segments.map((seg, i) => {
+          if (seg.current === 0 || seg.arcDeg <= 0) return null;
 
-          // stroke-dasharray: [visible arc, rest of circumference]
-          const dashArray = `${segArc} ${circumference - segArc}`;
-          // stroke-dashoffset: shift backwards to position the segment
-          // We start from the top (12 o'clock), so offset by -startOffsets[i]
-          // Since SVG circle starts at 3 o'clock, rotate -90 via startAngle
-          const startAngle = -90 + (startOffsets[i] / circumference) * 360;
+          const segLength = (seg.arcDeg / 360) * circumference;
+          const dashArray = `${segLength} ${circumference - segLength}`;
+          // Rotate so segment starts at correct position
+          // -90 shifts SVG's 3 o'clock start to 12 o'clock
+          const rotateAngle = -90 + seg.slotStart;
 
           return (
             <circle
@@ -88,12 +70,11 @@ export default function MultiRingProgress({
               cy={center}
               r={radius}
               fill="transparent"
-              stroke={showEmpty ? habit.color : habit.color}
+              stroke={seg.color}
               strokeWidth={strokeWidth}
               strokeLinecap="round"
               strokeDasharray={dashArray}
-              strokeOpacity={showEmpty ? 0.2 : 1}
-              transform={`rotate(${startAngle} ${center} ${center})`}
+              transform={`rotate(${rotateAngle} ${center} ${center})`}
               className="transition-all duration-500 ease-out"
             />
           );
