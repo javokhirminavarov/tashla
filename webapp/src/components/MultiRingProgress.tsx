@@ -20,23 +20,24 @@ export default function MultiRingProgress({
   const strokeWidth = 10;
   const radius = 62;
   const circumference = 2 * Math.PI * radius;
-  const gapDeg = 6;
+  const gapDeg = 8;
 
   // Only consider habits with max > 0
   const activeHabits = habits.filter((h) => h.max > 0);
   const N = activeHabits.length;
 
-  // Each habit gets an equal slot of 360/N degrees
-  // Within each slot, gapDeg is reserved for spacing
-  const slotDeg = N > 0 ? 360 / N : 360;
-  const usableDeg = slotDeg - (N > 1 ? gapDeg : 0);
+  // Each habit gets an equal sector of 360/N degrees
+  const sectorDeg = N > 0 ? 360 / N : 360;
+  // Available degrees per segment = sector minus gap
+  const availableDeg = N > 1 ? sectorDeg - gapDeg : sectorDeg;
 
   const segments = activeHabits.map((h, i) => {
     const ratio = Math.min(h.current / h.max, 1);
-    const arcDeg = ratio * usableDeg;
-    // Slot starts at i * slotDeg, offset by half gap for centering gaps between segments
-    const slotStart = i * slotDeg + (N > 1 ? gapDeg / 2 : 0);
-    return { arcDeg, slotStart, color: h.color, current: h.current };
+    // Fill ratio of available space (gap already subtracted)
+    const arcDeg = ratio * availableDeg;
+    // Segment starts at sector boundary + half gap offset
+    const startDeg = i * sectorDeg + (N > 1 ? gapDeg / 2 : 0);
+    return { arcDeg, startDeg, availableDeg, color: h.color, current: h.current };
   });
 
   return (
@@ -45,9 +46,9 @@ export default function MultiRingProgress({
         {/* Background track segments with gaps */}
         {N > 1 ? (
           segments.map((seg, i) => {
-            const trackLength = (usableDeg / 360) * circumference;
+            const trackLength = (seg.availableDeg / 360) * circumference;
             const dashArray = `${trackLength} ${circumference - trackLength}`;
-            const rotateAngle = -90 + seg.slotStart;
+            const rotateAngle = -90 + seg.startDeg;
             return (
               <circle
                 key={`bg-${i}`}
@@ -57,7 +58,7 @@ export default function MultiRingProgress({
                 fill="transparent"
                 stroke="#23352b"
                 strokeWidth={strokeWidth}
-                strokeLinecap="round"
+                strokeLinecap="butt"
                 strokeDasharray={dashArray}
                 transform={`rotate(${rotateAngle} ${center} ${center})`}
               />
@@ -80,9 +81,8 @@ export default function MultiRingProgress({
 
           const segLength = (seg.arcDeg / 360) * circumference;
           const dashArray = `${segLength} ${circumference - segLength}`;
-          // Rotate so segment starts at correct position
           // -90 shifts SVG's 3 o'clock start to 12 o'clock
-          const rotateAngle = -90 + seg.slotStart;
+          const rotateAngle = -90 + seg.startDeg;
 
           return (
             <circle
@@ -93,7 +93,7 @@ export default function MultiRingProgress({
               fill="transparent"
               stroke={seg.color}
               strokeWidth={strokeWidth}
-              strokeLinecap="round"
+              strokeLinecap="butt"
               strokeDasharray={dashArray}
               transform={`rotate(${rotateAngle} ${center} ${center})`}
               className="transition-all duration-500 ease-out"
