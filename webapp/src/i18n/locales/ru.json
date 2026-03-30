@@ -99,6 +99,7 @@
     "unlocked": "открыто",
     "noData": "Данные не найдены",
     "completed": "Выполнено",
+    "preserved": "Сохранено",
     "inProgress": "В процессе",
     "remaining": "осталось",
     "locked": "Заблокировано"

@@ -39,6 +39,7 @@ export interface MilestoneData {
   description_ru?: string;
   icon: string;
   unlocked: boolean;
+  grace_preserved?: boolean;
   unlocked_ago?: string;
   time_until?: string;
 }

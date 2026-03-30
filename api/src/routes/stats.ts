@@ -93,7 +93,7 @@ router.get("/streak", authMiddleware, async (req, res) => {
   try {
     // Get active profiles with limits
     const profiles = await query(
-      `SELECT habit_type, daily_baseline, daily_limit
+      `SELECT habit_type, daily_baseline, daily_limit, created_at
        FROM habit_profiles
        WHERE user_id = $1 AND is_active = 1`,
       [req.user.id]
@@ -137,34 +137,31 @@ router.get("/streak", authMiddleware, async (req, res) => {
       const limit = Number(profile.daily_limit ?? profile.daily_baseline);
       let streak = 0;
 
-      // Check today first
+      // Profile creation date — don't count days before this
+      const createdAt = profile.created_at;
+      const createdDateStr = createdAt
+        ? (createdAt instanceof Date ? createdAt : new Date(String(createdAt))).toISOString().split("T")[0]
+        : todayStr;
+
+      // Check today first — 0 usage also counts as a win
       const todayCount = dailyMap[todayStr]?.[ht] ?? 0;
-      if (todayCount === 0) {
-        // No logs today — start counting from yesterday
-      } else if (todayCount > limit) {
-        // Over limit today — streak is 0
+      if (todayCount > limit) {
         streaks[ht] = 0;
         continue;
-      } else {
-        // Within limit today — count today
-        streak = 1;
       }
+      streak = 1;
 
       // Go backwards from yesterday
       for (let d = 1; d <= 90; d++) {
         const date = new Date(today);
         date.setDate(date.getDate() - d);
         const dateStr = date.toISOString().split("T")[0];
-        const count = dailyMap[dateStr]?.[ht];
 
-        if (count === undefined) {
-          // No logs this day — streak breaks
-          break;
-        }
-        if (count > limit) {
-          // Over limit — streak breaks
-          break;
-        }
+        // Don't count days before profile was created
+        if (dateStr < createdDateStr) break;
+
+        const count = dailyMap[dateStr]?.[ht] ?? 0;
+        if (count > limit) break;
         streak++;
       }
 

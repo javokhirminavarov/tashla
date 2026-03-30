@@ -4,6 +4,12 @@ import { authMiddleware } from "../auth.js";
 
 const router = Router();
 
+function parseToDate(raw: unknown): Date {
+  if (raw instanceof Date) return raw;
+  const s = String(raw);
+  return new Date(s + (s.includes("Z") || s.includes("+") ? "" : "Z"));
+}
+
 // GET /api/health/:habitType — milestones with unlock status
 router.get("/:habitType", authMiddleware, async (req, res) => {
   try {
@@ -22,6 +28,14 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
       [req.user.id, habitType]
     );
 
+    // Get the second-to-last log (for grace period calculation)
+    const secondLastResult = await query(
+      `SELECT logged_at FROM usage_logs
+       WHERE user_id = $1 AND habit_type = $2
+       ORDER BY logged_at DESC LIMIT 1 OFFSET 1`,
+      [req.user.id, habitType]
+    );
+
     // Get the profile creation date as fallback
     const profileResult = await query(
       `SELECT created_at FROM habit_profiles
@@ -30,10 +44,23 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
     );
 
     const rawLastLog = lastLogResult.rows[0]?.logged_at;
+    const rawSecondLastLog = secondLastResult.rows[0]?.logged_at;
     const rawProfileCreated = profileResult.rows[0]?.created_at;
 
     // Reference time: last log, or profile creation if no logs
     const rawRef = rawLastLog || rawProfileCreated;
+
+    // Calculate previous abstinence period (time between last two logs)
+    // Used for grace logic: if a milestone was solidly earned (>48h), preserve it on a single slip
+    let previousAbstinenceHours = 0;
+    if (rawLastLog) {
+      const referenceForPrevious = rawSecondLastLog || rawProfileCreated;
+      if (referenceForPrevious) {
+        previousAbstinenceHours =
+          (parseToDate(rawLastLog).getTime() - parseToDate(referenceForPrevious).getTime()) /
+          (1000 * 60 * 60);
+      }
+    }
 
     // Get all milestones for this habit
     const milestones = await query(
@@ -47,14 +74,7 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
     let hoursSinceRef = 0;
     let lastLogAt: string | null = null;
     if (rawRef) {
-      let refDate: Date;
-      if (rawRef instanceof Date) {
-        refDate = rawRef;
-      } else {
-        const s = String(rawRef);
-        refDate = new Date(s + (s.includes("Z") || s.includes("+") ? "" : "Z"));
-      }
-      hoursSinceRef = (Date.now() - refDate.getTime()) / (1000 * 60 * 60);
+      hoursSinceRef = (Date.now() - parseToDate(rawRef).getTime()) / (1000 * 60 * 60);
     }
     if (rawLastLog) {
       lastLogAt = rawLastLog instanceof Date ? rawLastLog.toISOString() : String(rawLastLog);
@@ -62,10 +82,23 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
 
     const enriched = milestones.rows.map((m) => {
       const hoursAfter = Number(m.hours_after);
-      const unlocked = rawRef ? hoursSinceRef >= hoursAfter : false;
+
+      // Standard check: time since last log >= milestone threshold
+      const standardUnlocked = rawRef ? hoursSinceRef >= hoursAfter : false;
+
+      // Grace check: was this milestone solidly earned (held >48h) before the latest slip?
+      let gracePreserved = false;
+      if (!standardUnlocked && rawLastLog && previousAbstinenceHours > hoursAfter) {
+        const timeItWasUnlocked = previousAbstinenceHours - hoursAfter;
+        if (timeItWasUnlocked > 48) {
+          gracePreserved = true;
+        }
+      }
+
+      const unlocked = standardUnlocked || gracePreserved;
 
       let unlocked_ago: string | undefined;
-      if (unlocked) {
+      if (standardUnlocked) {
         const diff = hoursSinceRef - hoursAfter;
         if (diff < 1) unlocked_ago = `${Math.round(diff * 60)} daqiqa oldin`;
         else if (diff < 24) unlocked_ago = `${Math.round(diff)} soat oldin`;
@@ -84,6 +117,7 @@ router.get("/:habitType", authMiddleware, async (req, res) => {
         ...m,
         hours_after: hoursAfter,
         unlocked,
+        grace_preserved: gracePreserved,
         unlocked_ago,
         time_until,
       };

@@ -35,10 +35,10 @@ export default function HealthTimeline({
             {!isLast && (
               <div
                 className={`absolute left-[19px] top-10 bottom-0 w-[2px] ${
-                  m.unlocked
+                  m.unlocked && m.grace_preserved
+                    ? "bg-warning/40"
+                    : m.unlocked
                     ? "bg-brand"
-                    : isInProgress
-                    ? "dashed-line"
                     : "dashed-line"
                 }`}
               />
@@ -46,7 +46,13 @@ export default function HealthTimeline({
 
             {/* Icon circle */}
             <div className="relative z-10 flex-shrink-0">
-              {m.unlocked ? (
+              {m.unlocked && m.grace_preserved ? (
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-warning/20 text-warning shadow-md shadow-warning/20 ring-4 ring-bg border border-warning/30">
+                  <span className="material-symbols-outlined text-[24px]">
+                    verified_user
+                  </span>
+                </div>
+              ) : m.unlocked ? (
                 <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand text-[#F1F5F2] shadow-md shadow-brand/30 ring-4 ring-bg">
                   <span className="material-symbols-outlined text-[24px]">
                     check
@@ -71,7 +77,9 @@ export default function HealthTimeline({
             <div className="flex-1">
               <div
                 className={`relative bg-bg-card rounded-2xl p-4 shadow-card border overflow-hidden ${
-                  m.unlocked
+                  m.unlocked && m.grace_preserved
+                    ? "border-warning/20 ring-1 ring-warning/10"
+                    : m.unlocked
                     ? "border-border milestone-unlocked"
                     : isInProgress
                     ? "border-warning/30 ring-1 ring-warning/10"
@@ -103,7 +111,12 @@ export default function HealthTimeline({
                     >
                       {title}
                     </h3>
-                    {m.unlocked && (
+                    {m.unlocked && m.grace_preserved && (
+                      <span className="px-2.5 py-0.5 rounded-full bg-warning/10 text-warning text-xs font-bold uppercase tracking-wider">
+                        {t("health.preserved")}
+                      </span>
+                    )}
+                    {m.unlocked && !m.grace_preserved && (
                       <span className="px-2.5 py-0.5 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider">
                         {t("health.completed")}
                       </span>
@@ -130,7 +143,9 @@ export default function HealthTimeline({
                       className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${m.unlocked ? 100 : progress}%`,
-                        backgroundColor: m.unlocked
+                        backgroundColor: m.unlocked && m.grace_preserved
+                          ? "#FBBF24"
+                          : m.unlocked
                           ? "#1fc762"
                           : isInProgress
                           ? "#F59E0B"

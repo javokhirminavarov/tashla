@@ -148,7 +148,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 
       // Profiles (baselines + limits)
       const profilesResult = await query(
-        `SELECT habit_type, daily_limit, daily_baseline
+        `SELECT habit_type, daily_limit, daily_baseline, created_at
          FROM habit_profiles
          WHERE user_id = $1 AND is_active = 1`,
         [userId]
@@ -156,11 +156,16 @@ router.get("/:id", authMiddleware, async (req, res) => {
 
       const limits: Record<string, number> = {};
       const baselines: Record<string, number> = {};
+      const createdDates: Record<string, string> = {};
       for (const row of profilesResult.rows) {
         const ht = row.habit_type as string;
         if (ht === "alkogol" && hideAlkogol && userId !== req.user.id) continue;
         limits[ht] = Number(row.daily_limit ?? row.daily_baseline);
         baselines[ht] = Number(row.daily_baseline);
+        const ca = row.created_at;
+        createdDates[ht] = ca
+          ? (ca instanceof Date ? ca : new Date(String(ca))).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0];
       }
 
       // 7-day averages for reduction %
@@ -222,20 +227,21 @@ router.get("/:id", authMiddleware, async (req, res) => {
         if (ht === "alkogol" && hideAlkogol && userId !== req.user.id) continue;
         const limit = limits[ht] ?? baselines[ht];
         let streak = 0;
+        const createdDateStr = createdDates[ht] ?? todayStr;
 
         const tc = dailyMap[todayStr]?.[ht] ?? 0;
         if (tc > limit) {
           streaks[ht] = 0;
           continue;
         }
-        if (tc > 0) streak = 1;
+        streak = 1;
 
         for (let d = 1; d <= 90; d++) {
           const dd = new Date(nowDate);
           dd.setDate(dd.getDate() - d);
           const ds = dd.toISOString().split("T")[0];
-          const count = dailyMap[ds]?.[ht];
-          if (count === undefined) break;
+          if (ds < createdDateStr) break;
+          const count = dailyMap[ds]?.[ht] ?? 0;
           if (count > limit) break;
           streak++;
         }
