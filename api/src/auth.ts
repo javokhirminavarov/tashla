@@ -93,8 +93,9 @@ export async function authMiddleware(
   next();
 }
 
-export function isAdminUser(telegramId: number): boolean {
-  return ADMIN_TELEGRAM_IDS.includes(telegramId);
+export function isAdminUser(telegramId: number | string): boolean {
+  const id = Number(telegramId);
+  return ADMIN_TELEGRAM_IDS.includes(id);
 }
 
 export async function adminMiddleware(
