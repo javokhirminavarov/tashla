@@ -39,10 +39,11 @@ tashla/
 │   ├── src/
 │   │   ├── index.ts       # Express app entry, cors, json parsing, bot webhook
 │   │   ├── db.ts          # Dual-driver DB abstraction + embedded schema (no separate migrations)
-│   │   ├── auth.ts        # Telegram initData validation middleware
+│   │   ├── auth.ts        # Telegram initData validation + admin middleware
 │   │   ├── bot.ts         # Telegram bot (grammy), webhook-based, /start command + menu button
 │   │   ├── cron.ts        # Node-cron jobs: notifications + quit plan step transitions
 │   │   ├── routes/
+│   │   │   ├── admin.ts   # GET /api/admin/* — admin dashboard endpoints
 │   │   │   ├── auth.ts    # POST /api/auth — validate + upsert user
 │   │   │   ├── profiles.ts # GET/POST/DELETE/PATCH habit profiles + user settings
 │   │   │   ├── logs.ts    # POST log, DELETE last, GET today, GET daily
@@ -65,7 +66,7 @@ tashla/
 │   ├── .env.production    # Production VITE_API_URL
 │   ├── src/
 │   │   ├── main.tsx        # React entry
-│   │   ├── App.tsx         # Router: /, /stats, /health, /community, /profile, /group/:id
+│   │   ├── App.tsx         # Router: /, /stats, /health, /community, /profile, /group/:id, /admin
 │   │   ├── lib/
 │   │   │   ├── api.ts      # Fetch wrapper — all API calls
 │   │   │   ├── colors.ts   # Zone-based color utility (green/amber/red interpolation)
@@ -83,11 +84,12 @@ tashla/
 │   │   │   ├── Health.tsx
 │   │   │   ├── Profile.tsx
 │   │   │   ├── Community.tsx    # Groups list
-│   │   │   └── GroupDetail.tsx  # Group view + member progress
+│   │   │   ├── GroupDetail.tsx  # Group view + member progress
+│   │   │   └── Admin.tsx        # Admin dashboard (admin-only)
 │   │   ├── components/
-│   │   │   ├── HabitCard.tsx      # Habit selector pill on dashboard
+│   │   │   ├── MultiRingProgress.tsx # SVG multi-ring progress (concentric rings for all habits)
+│   │   │   ├── HabitProgressBars.tsx # Multi-habit progress bars with selection
 │   │   │   ├── ProgressBar.tsx    # Horizontal progress indicator
-│   │   │   ├── CircularProgress.tsx # SVG circular progress ring (hero element)
 │   │   │   ├── BottomSheet.tsx    # Slide-up modal for multi-habit logging
 │   │   │   ├── WeeklyChart.tsx    # Recharts composite line/area chart
 │   │   │   ├── HealthTimeline.tsx # Vertical milestone timeline (3 states)
@@ -99,8 +101,7 @@ tashla/
 │   │   │   └── JoinGroupSheet.tsx   # Group join modal
 │   │   └── hooks/
 │   │       ├── useAuth.ts         # Auth + user state
-│   │       ├── useLogs.ts         # Logging actions + today's data
-│   │       └── useProfiles.ts     # Habit profiles
+│   │       └── useLogs.ts         # Logging actions + today's data
 │   └── .env.example        # VITE_API_URL
 │
 └── shared/                 # Shared constants (copy, not linked)
@@ -130,6 +131,7 @@ tashla/
 - All routes return JSON: `{ data: ... }` on success, `{ error: "message" }` on failure
 - HTTP status codes: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 500 Server Error
 - Auth middleware extracts `telegram_id` from validated initData and attaches `req.user`
+- Admin middleware (`adminMiddleware`) checks `ADMIN_TELEGRAM_IDS` env var for admin-only routes
 - CORS: allow the webapp origin only
 
 ### Telegram Auth
@@ -200,7 +202,7 @@ Key index: (user_id, habit_type, logged_at DESC) on usage_logs.
 
 ```
 POST   /api/auth              Body: { initData: string }
-                               → Validate, upsert user, return { data: { user, profiles } }
+                               → Validate, upsert user, return { data: { user, profiles, is_admin? } }
 
 GET    /api/profiles           → { data: HabitProfile[] }
 POST   /api/profiles           Body: { habit_type, daily_baseline, daily_limit?, cost_per_unit? }
@@ -238,6 +240,13 @@ DELETE /api/groups/:id/leave   → Leave group (auto-deletes if empty)
 PATCH  /api/groups/:id/privacy Body: { hide_alkogol }  → Toggle privacy
 
 GET    /api/ping               → { status: "ok" }  (health check, no auth)
+
+GET    /api/admin/overview     → { data: { totalUsers, activeUsers, totalLogs, newUsersTrend } }
+                               (admin-only, requires ADMIN_TELEGRAM_IDS)
+GET    /api/admin/users?search=&page=&limit=  → Paginated user list
+GET    /api/admin/users/:id    → User detail with profiles, recent logs, daily activity
+GET    /api/admin/habits       → Habit statistics across all users
+GET    /api/admin/activity?days=30  → Daily activity tracking
 ```
 
 Money calculation:
@@ -265,6 +274,9 @@ All core MVP features built: project setup, database, API (all endpoints), bot, 
 - Bot push notifications (4 types, node-cron scheduling, settings UI)
 - Adaptive quit plans (3 speed presets, step progression, cron transitions)
 - Community/friends (groups, invite codes, member progress, privacy)
+- Admin dashboard (user management, habit stats, activity tracking)
+- Multi-ring progress UI (concentric SVG rings replacing single circular progress)
+- Input validation + rate limiting (express-rate-limit)
 
 ### Step 8: Deploy (REMAINING)
 - API → Railway with PostgreSQL
@@ -350,6 +362,7 @@ WEBAPP_DIR=../webapp/dist
 DEV_MODE=true                          # Skips Telegram initData validation
 DEV_TELEGRAM_ID=123456789              # Fake user ID for dev mode
 RAILWAY_PUBLIC_DOMAIN=                 # Set by Railway, used for webhook URL
+ADMIN_TELEGRAM_IDS=123456789           # Comma-separated admin Telegram IDs
 ```
 
 ### webapp/.env
@@ -759,10 +772,9 @@ Badge icons:   text-[16px]
 ### Specific Screen Guidelines
 
 #### Dashboard (Main screen)
-- **Hero element:** Circular SVG progress ring — large (200-220px), centered, with brand glow
-- Inside the ring: current count / daily limit as `text-5xl font-light`
-- Below ring: habit name in small caps + "bugungi" label
-- Habit selector pills: horizontally scrollable, active pill has habit-colored bg + border
+- **Hero element:** MultiRingProgress — concentric SVG rings showing all active habits, color-coded (sigaret=orange, nos=violet, alkogol=blue), with brand glow
+- Inside the rings: selected habit count / daily limit as `text-5xl font-light`
+- HabitProgressBars below rings for habit selection + individual progress display
 - Quick-log button: fixed or prominent, brand-colored, full-width, with `+ Qayd etish` and plus icon
 - Money saved card: below progress, shows today's savings with animated number counting up
 - Stagger animation: ring → pills → stats → button (80ms delays)
@@ -880,20 +892,20 @@ Before committing any UI code, verify ALL of these:
 
 ---
 
-## Current Project Status (as of 2026-03-14)
+## Current Project Status (as of 2026-04-04)
 
 ### Completed
 - All project scaffolding, TypeScript configs, and dependencies installed
 - Database: 9 tables, schema embedded in db.ts, SQLite dev DB operational
-- API: all endpoints implemented (auth, profiles, logs, health, stats, streak, quit-plan, groups, ping)
+- API: all endpoints implemented (auth, profiles, logs, health, stats, streak, quit-plan, groups, admin, ping)
 - API: cron.ts handles push notifications (5 cron jobs) + quit plan step transitions
+- API: input validation + rate limiting (express-rate-limit)
 - Bot: consolidated into api/src/bot.ts, webhook-based (not polling), /start + menu button
-- Webapp: 7 pages (Onboarding, Dashboard, Stats, Health, Profile, Community, GroupDetail)
-- Webapp: 12 components, 3 hooks, 4 lib modules, i18n (uz/ru)
+- Webapp: 8 pages (Onboarding, Dashboard, Stats, Health, Profile, Community, GroupDetail, Admin)
+- Webapp: 12 components, 2 hooks, 4 lib modules, i18n (uz/ru)
 - Dev mode with SQLite + bypassed auth for local testing
 - Dockerfiles for both api/ and webapp/ (Railway-ready)
 - TASHLA_PROJECT_KNOWLEDGE.md for business context
-- 49+ git commits on main branch
 
 ### Post-MVP Features Implemented
 1. **i18n** — uz/ru locales, auto-detect from Telegram, language selector in Profile
@@ -901,6 +913,9 @@ Before committing any UI code, verify ALL of these:
 3. **Push notifications** — 5 cron jobs via grammy + node-cron, settings in Profile
 4. **Adaptive quit plans** — configurable reduction_percent + step_duration_days, adjust speed (faster/slower), Dashboard progress card
 5. **Community/friends** — groups with invite codes, member progress with scores, alkogol privacy toggle, 4th nav tab
+6. **Admin dashboard** — overview stats, user management (search/pagination), habit analytics, activity tracking; admin access gated by ADMIN_TELEGRAM_IDS env var
+7. **Multi-ring progress** — concentric SVG rings showing all active habits on Dashboard (replaced single CircularProgress)
+8. **Validation & rate limiting** — express-rate-limit on API, input validation on routes
 
 ### Remaining (Deployment)
 - Deploy API + bot to Railway with PostgreSQL

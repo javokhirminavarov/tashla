@@ -33,33 +33,254 @@ async function sendSafe(telegramId: number, text: string): Promise<void> {
   }
 }
 
+// ── Dynamic daily reminder templates ─────────────────────────────────
+
+const DAILY_TEMPLATES: Record<string, { uz: string[]; ru: string[] }> = {
+  LIMIT_ICHIDA: {
+    uz: [
+      "Kecha limitda qoldingiz! ✅ Davom eting — bugun ham shu yo'lda!",
+      "Ajoyib! Kechagi natija: {yesterday_total} ta — limit ichida. 💪",
+      "Zo'r natija! Kecha {yesterday_total}/{daily_limit} — nazorat sizda!",
+      "Kecha o'zingizni nazorat qildingiz ✅ Bugun ham shunday bo'lsin!",
+      "{streak_days} kunlik streak! 🔥 Har bir kun muhim — davom eting",
+    ],
+    ru: [
+      "Вчера вы были в лимите! ✅ Продолжайте — сегодня так же!",
+      "Отлично! Вчерашний результат: {yesterday_total} — в лимите. 💪",
+      "Супер! Вчера {yesterday_total}/{daily_limit} — контроль за вами!",
+      "Вчера вы держали себя в руках ✅ Сегодня тоже!",
+      "{streak_days} дней подряд! 🔥 Каждый день важен — продолжайте",
+    ],
+  },
+  OSHGAN_LEKIN_KAMAYISH_BOR: {
+    uz: [
+      "Kecha {yesterday_total} ta — oldingi kundan {difference} taga kam! Yo'nalish to'g'ri 📉",
+      "Kamayish sezilayapti! {day_before} → {yesterday_total}. Har bir qadam muhim",
+      "To'liq limitga yetmasangiz ham, kamayish bor — bu yaxshi belgi! 💚",
+      "Oldingi kun {day_before} ta edi, kecha {yesterday_total} ta. Sekin-asta, lekin ishonchli!",
+    ],
+    ru: [
+      "Вчера {yesterday_total} — на {difference} меньше, чем позавчера! Верное направление 📉",
+      "Снижение заметно! {day_before} → {yesterday_total}. Каждый шаг важен",
+      "До лимита ещё далеко, но прогресс есть — это хороший знак! 💚",
+      "Позавчера {day_before}, вчера {yesterday_total}. Медленно, но уверенно!",
+    ],
+  },
+  OSHGAN_KAMAYISH_YOQ: {
+    uz: [
+      "Bilasizmi? Nikotin ishtiyoqi atigi 15-20 daqiqa davom etadi. Bardosh bering! 💪",
+      "40 yoshdan oldin tashlash o'lim xavfini 90% kamaytiradi 🫀",
+      "Og'iz saratoni kasallarining 90%i — chekuvchilar. Bugun o'zgartiring!",
+      "JSST: spirtli ichimliklarni iste'mol qilish uchun xavfsiz daraja YO'Q",
+      "Chekishni tashlaganingizdan 20 daqiqada yurak urishi yaxshilanadi ❤️",
+      "O'zbekistonda erkalarning har 4 tasidan 1 tasi nos chekadi. Siz farq yaratishingiz mumkin!",
+      "Sigaret tutunida 6000 ga yaqin kimyoviy birikma bor 🧪",
+      "5-15 yilda insult xavfi chekmaydigan odamniki bilan tenglashadi!",
+      "Alkogol kamida 7 turdagi saraton kasalligiga olib keladi",
+      "860 000+ nos chekuvchi bevaqt o'lim xavfida. Siz bu statistikadan chiqing!",
+      "Har yili 8 million odam chekish sabab vafot etadi — bugun birinchi qadam qo'ying",
+      "Chekishni tashlaganingizdan 1-9 oyda yo'tal va nafas qisishi kamayadi 🌬️",
+    ],
+    ru: [
+      "Знаете? Тяга к никотину длится всего 15-20 минут. Потерпите! 💪",
+      "Бросить до 40 лет снижает риск смерти на 90% 🫀",
+      "90% больных раком полости рта — курильщики. Измените это сегодня!",
+      "ВОЗ: безопасной дозы алкоголя НЕ существует",
+      "Через 20 минут после отказа от курения пульс нормализуется ❤️",
+      "Каждый 4-й мужчина в Узбекистане употребляет насвай. Вы можете изменить статистику!",
+      "В сигаретном дыме около 6000 химических соединений 🧪",
+      "Через 5-15 лет риск инсульта сравняется с некурящим!",
+      "Алкоголь вызывает минимум 7 видов рака",
+      "860 000+ потребителей насвая под угрозой ранней смерти. Выйдите из этой статистики!",
+      "Ежегодно 8 миллионов человек умирают от курения — сделайте первый шаг сегодня",
+      "Через 1-9 месяцев после отказа от курения кашель и одышка уменьшаются 🌬️",
+    ],
+  },
+  QAYD_QILMAGAN: {
+    uz: [
+      "Bugungi natijangizni yozib qo'ying — o'zingiz uchun 📝",
+      "Kechagi kuningiz qanday o'tdi? TASHLA'da yozib qo'ying 📊",
+      "Nazorat davom etsin — bugungi holatni qayd qiling ✍️",
+      "Progress kuzatish kuch beradi — bugun ham yozib boring!",
+    ],
+    ru: [
+      "Запишите сегодняшний результат — для себя 📝",
+      "Как прошёл вчерашний день? Запишите в TASHLA 📊",
+      "Пусть контроль продолжается — отметьте сегодняшний день ✍️",
+      "Отслеживание прогресса даёт силу — записывайте и сегодня!",
+    ],
+  },
+  YANGI_YOKI_NOAKTIV: {
+    uz: [
+      "TASHLA sizni kutayapti! Birinchi qadam — bilish. Bugun boshlang 🚀",
+      "Bilasizmi? Birinchi qadam — qancha ishlatayotganingizni bilish. TASHLA yordam beradi",
+      "O'zgarish bugundan boshlanadi. TASHLA'ni oching — birinchi qadamni qo'ying!",
+    ],
+    ru: [
+      "TASHLA ждёт вас! Первый шаг — осознание. Начните сегодня 🚀",
+      "Знаете? Первый шаг — понять, сколько вы потребляете. TASHLA поможет",
+      "Перемены начинаются сегодня. Откройте TASHLA — сделайте первый шаг!",
+    ],
+  },
+};
+
+// ── User state detection for daily notification ──────────────────────
+
+type DailyState =
+  | { state: "LIMIT_ICHIDA"; yesterday_total: number; daily_limit: number; streak_days: number }
+  | { state: "OSHGAN_LEKIN_KAMAYISH_BOR"; yesterday_total: number; day_before: number; difference: number }
+  | { state: "OSHGAN_KAMAYISH_YOQ" }
+  | { state: "QAYD_QILMAGAN" }
+  | { state: "YANGI_YOKI_NOAKTIV" };
+
+async function getUserDailyState(userId: number): Promise<DailyState> {
+  const dateExpr = isSQLite ? "date(logged_at)" : "logged_at::date";
+  const yesterdayExpr = isSQLite ? "date('now', '-1 day')" : "CURRENT_DATE - INTERVAL '1 day'";
+  const dayBeforeExpr = isSQLite ? "date('now', '-2 days')" : "CURRENT_DATE - INTERVAL '2 days'";
+
+  // Get user's active habit profiles with limits
+  const profiles = await query(
+    `SELECT habit_type, COALESCE(daily_limit, daily_baseline) as effective_limit
+     FROM habit_profiles WHERE user_id = $1 AND is_active = 1`,
+    [userId]
+  );
+  if (profiles.rows.length === 0) {
+    return { state: "YANGI_YOKI_NOAKTIV" };
+  }
+
+  const totalLimit = profiles.rows.reduce((sum, r) => sum + Number(r.effective_limit), 0);
+
+  // Yesterday's total across all habits
+  const yesterdayResult = await query(
+    `SELECT COALESCE(SUM(quantity), 0) as total FROM usage_logs
+     WHERE user_id = $1 AND ${dateExpr} = ${yesterdayExpr}`,
+    [userId]
+  );
+  const yesterdayTotal = Number(yesterdayResult.rows[0]?.total ?? 0);
+
+  // Day before yesterday's total
+  const dayBeforeResult = await query(
+    `SELECT COALESCE(SUM(quantity), 0) as total FROM usage_logs
+     WHERE user_id = $1 AND ${dateExpr} = ${dayBeforeExpr}`,
+    [userId]
+  );
+  const dayBeforeTotal = Number(dayBeforeResult.rows[0]?.total ?? 0);
+
+  if (yesterdayTotal > 0) {
+    if (yesterdayTotal <= totalLimit) {
+      // Calculate simple streak: consecutive days within limit (up to 90 days)
+      const streakResult = await query(
+        `SELECT ${dateExpr} as d, SUM(quantity) as total
+         FROM usage_logs WHERE user_id = $1
+         GROUP BY ${dateExpr} ORDER BY ${dateExpr} DESC LIMIT 90`,
+        [userId]
+      );
+      let streak = 0;
+      for (const row of streakResult.rows) {
+        if (Number(row.total) <= totalLimit) streak++;
+        else break;
+      }
+      return {
+        state: "LIMIT_ICHIDA",
+        yesterday_total: yesterdayTotal,
+        daily_limit: totalLimit,
+        streak_days: streak,
+      };
+    } else if (dayBeforeTotal > 0 && yesterdayTotal < dayBeforeTotal) {
+      return {
+        state: "OSHGAN_LEKIN_KAMAYISH_BOR",
+        yesterday_total: yesterdayTotal,
+        day_before: dayBeforeTotal,
+        difference: dayBeforeTotal - yesterdayTotal,
+      };
+    } else {
+      return { state: "OSHGAN_KAMAYISH_YOQ" };
+    }
+  } else {
+    // No logs yesterday — check last log date
+    const lastLogResult = await query(
+      `SELECT MAX(${dateExpr}) as last_date FROM usage_logs WHERE user_id = $1`,
+      [userId]
+    );
+    const lastDate = lastLogResult.rows[0]?.last_date;
+    if (!lastDate) {
+      return { state: "YANGI_YOKI_NOAKTIV" };
+    }
+    // Days since last log
+    const daysSinceResult = await query(
+      isSQLite
+        ? `SELECT julianday('now') - julianday($1) as diff`
+        : `SELECT EXTRACT(DAY FROM NOW() - $1::date) as diff`,
+      [lastDate]
+    );
+    const daysSince = Math.floor(Number(daysSinceResult.rows[0]?.diff ?? 999));
+    if (daysSince > 7) {
+      return { state: "YANGI_YOKI_NOAKTIV" };
+    }
+    return { state: "QAYD_QILMAGAN" };
+  }
+}
+
+function selectDailyMessage(stateData: DailyState, lang: string): string {
+  const templates = DAILY_TEMPLATES[stateData.state];
+  const pool = lang === "ru" ? templates.ru : templates.uz;
+
+  let idx: number;
+  if (stateData.state === "OSHGAN_KAMAYISH_YOQ") {
+    // Rotate facts by day of year so they don't repeat
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+    );
+    idx = dayOfYear % pool.length;
+  } else {
+    idx = Math.floor(Math.random() * pool.length);
+  }
+
+  let message = pool[idx];
+
+  // Replace placeholders
+  if (stateData.state === "LIMIT_ICHIDA") {
+    message = message
+      .replace("{yesterday_total}", String(stateData.yesterday_total))
+      .replace("{daily_limit}", String(stateData.daily_limit))
+      .replace("{streak_days}", String(stateData.streak_days));
+  } else if (stateData.state === "OSHGAN_LEKIN_KAMAYISH_BOR") {
+    message = message
+      .replace("{yesterday_total}", String(stateData.yesterday_total))
+      .replace("{day_before}", String(stateData.day_before))
+      .replace("{difference}", String(stateData.difference));
+  }
+
+  return message;
+}
+
 // Daily reminder — runs every 15 minutes, checks users whose notification_time matches current HH:MM (±7 min)
 async function dailyReminder(): Promise<void> {
   const now = new Date();
   // Tashkent is UTC+5
   const tashkentHour = (now.getUTCHours() + 5) % 24;
   const tashkentMin = now.getUTCMinutes();
-  const currentTime = `${String(tashkentHour).padStart(2, "0")}:${String(tashkentMin).padStart(2, "0")}`;
 
   // Find users whose notification_time is within ±7 minutes of now
   const users = await query(
-    `SELECT telegram_id, language, notification_time FROM users
-     WHERE notifications_enabled = 1 AND notification_time IS NOT NULL`,
+    `SELECT u.id, u.telegram_id, u.language, u.notification_time FROM users u
+     WHERE u.notifications_enabled = 1 AND u.notification_time IS NOT NULL`,
     []
   );
 
-  for (const user of users.rows as unknown as NotifUser[]) {
-    const [h, m] = user.notification_time.split(":").map(Number);
+  for (const user of users.rows) {
+    const notifTime = user.notification_time as string;
+    const [h, m] = notifTime.split(":").map(Number);
     const userMin = h * 60 + m;
     const nowMin = tashkentHour * 60 + tashkentMin;
     if (Math.abs(userMin - nowMin) <= 7) {
-      await sendSafe(
-        user.telegram_id,
-        msg(user.language,
-          "📝 Bugungi natijalaringizni yozing!",
-          "📝 Запишите сегодняшние результаты!"
-        )
-      );
+      const userId = Number(user.id);
+      const tid = Number(user.telegram_id);
+      const lang = user.language as string;
+
+      const stateData = await getUserDailyState(userId);
+      const message = selectDailyMessage(stateData, lang);
+      await sendSafe(tid, message);
     }
   }
 }
