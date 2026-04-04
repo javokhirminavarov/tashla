@@ -7,6 +7,7 @@ import type { User, HabitProfile } from "../lib/types";
 interface AuthState {
   user: User | null;
   profiles: HabitProfile[];
+  isAdmin: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -16,6 +17,7 @@ export function useAuth() {
   const [state, setState] = useState<AuthState>({
     user: null,
     profiles: [],
+    isAdmin: false,
     loading: true,
     error: null,
   });
@@ -37,6 +39,7 @@ export function useAuth() {
         setState({
           user: data.user,
           profiles: data.profiles,
+          isAdmin: !!data.is_admin,
           loading: false,
           error: null,
         });

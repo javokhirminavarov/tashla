@@ -9,6 +9,7 @@ import healthRoutes from "./routes/health.js";
 import statRoutes from "./routes/stats.js";
 import quitPlanRoutes from "./routes/quit-plan.js";
 import groupRoutes from "./routes/groups.js";
+import adminRoutes from "./routes/admin.js";
 import { startCronJobs } from "./cron.js";
 import { startBot, stopBot, getBotWebhookCallback, getWebhookPath } from "./bot.js";
 import { closePool } from "./db.js";
@@ -79,6 +80,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/stats", statRoutes);
 app.use("/api/quit-plan", quitPlanRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Bot webhook route
 const webhookCb = getBotWebhookCallback();

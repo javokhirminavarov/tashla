@@ -12,6 +12,7 @@ import Health from "./pages/Health";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import GroupDetail from "./pages/GroupDetail";
+import Admin from "./pages/Admin";
 import type { HabitProfile } from "./lib/types";
 
 interface ErrorBoundaryState {
@@ -70,7 +71,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
 function AppContent() {
   const { t } = useTranslation();
-  const { user, profiles, loading, error, refreshProfiles, setProfiles } = useAuth();
+  const { user, profiles, isAdmin, loading, error, refreshProfiles, setProfiles } = useAuth();
 
   useEffect(() => {
     tg.ready();
@@ -156,6 +157,7 @@ function AppContent() {
   return (
     <HashRouter>
       <Routes>
+        <Route path="/admin" element={<Admin />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard profiles={profiles} />} />
           <Route path="/stats" element={<Stats profiles={profiles} />} />
@@ -169,6 +171,7 @@ function AppContent() {
                 user={user!}
                 profiles={profiles}
                 refreshProfiles={refreshProfiles}
+                isAdmin={isAdmin}
               />
             }
           />

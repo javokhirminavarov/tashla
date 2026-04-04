@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { query } from "../db.js";
-import { authMiddleware } from "../auth.js";
+import { authMiddleware, isAdminUser } from "../auth.js";
 
 const router = Router();
 
@@ -19,6 +19,7 @@ router.post("/", authMiddleware, async (req, res) => {
       data: {
         user: req.user,
         profiles: profiles.rows,
+        is_admin: isAdminUser(req.user.telegram_id),
       },
     });
   } catch (err) {

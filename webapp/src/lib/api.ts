@@ -10,6 +10,11 @@ import type {
   QuitPlan,
   Group,
   GroupDetail,
+  AdminOverview,
+  AdminUser,
+  AdminUserDetail,
+  AdminHabitStats,
+  AdminActivity,
 } from "./types";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -188,5 +193,26 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ hide_alkogol: hide }),
     });
+  },
+
+  // Admin endpoints
+  adminOverview(): Promise<AdminOverview> {
+    return apiCall("/api/admin/overview");
+  },
+
+  adminUsers(search = "", page = 1, limit = 20): Promise<{ users: AdminUser[]; total: number }> {
+    return apiCall(`/api/admin/users?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`);
+  },
+
+  adminUserDetail(id: number): Promise<AdminUserDetail> {
+    return apiCall(`/api/admin/users/${id}`);
+  },
+
+  adminHabits(): Promise<AdminHabitStats[]> {
+    return apiCall("/api/admin/habits");
+  },
+
+  adminActivity(days = 30): Promise<AdminActivity[]> {
+    return apiCall(`/api/admin/activity?days=${days}`);
   },
 };

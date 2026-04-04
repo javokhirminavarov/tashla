@@ -11,6 +11,7 @@ interface ProfileProps {
   user: User;
   profiles: HabitProfile[];
   refreshProfiles: () => Promise<void>;
+  isAdmin?: boolean;
 }
 
 const ALL_HABITS: HabitType[] = ["sigaret", "nos", "alkogol"];
@@ -19,6 +20,7 @@ export default function Profile({
   user,
   profiles,
   refreshProfiles,
+  isAdmin,
 }: ProfileProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -145,7 +147,7 @@ export default function Profile({
               person
             </span>
           </div>
-          <div>
+          <div className="flex-1">
             <p className="font-semibold text-text-primary text-lg">
               {user.first_name}
             </p>
@@ -153,6 +155,15 @@ export default function Profile({
               <p className="text-sm text-text-secondary">@{user.username}</p>
             )}
           </div>
+          {isAdmin && (
+            <button
+              onClick={() => { haptic(); navigate("/admin"); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand/10 border border-brand/20 text-brand text-xs font-medium active:scale-[0.97] transition-transform"
+            >
+              <span className="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+              Admin
+            </button>
+          )}
         </div>
 
         {/* Language selector */}

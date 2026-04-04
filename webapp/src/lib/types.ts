@@ -58,6 +58,55 @@ export interface MoneySaved {
 export interface AuthResponse {
   user: User;
   profiles: HabitProfile[];
+  is_admin?: boolean;
+}
+
+// Admin types
+export interface AdminOverview {
+  totalUsers: number;
+  activeUsers: number;
+  totalLogs: number;
+  newUsersTrend: { day: string; count: number }[];
+}
+
+export interface AdminUser {
+  id: number;
+  telegram_id: number;
+  first_name: string;
+  username: string;
+  language: string;
+  created_at: string;
+  log_count: number;
+  profile_count: number;
+}
+
+export interface AdminUserDetail {
+  user: User & {
+    notifications_enabled: number;
+    notification_time: string;
+    timezone: string;
+    weekly_summary: number;
+    created_at: string;
+  };
+  profiles: HabitProfile[];
+  recentLogs: { id: number; habit_type: string; quantity: number; logged_at: string }[];
+  dailyActivity: { day: string; habit_type: string; total: number }[];
+}
+
+export interface AdminHabitStats {
+  habit_type: HabitType;
+  user_count: number;
+  avg_baseline: number;
+  avg_limit: number;
+  total_logs: number;
+  total_quantity: number;
+}
+
+export interface AdminActivity {
+  day: string;
+  active_users: number;
+  log_count: number;
+  total_quantity: number;
 }
 
 export interface QuitPlanStep {

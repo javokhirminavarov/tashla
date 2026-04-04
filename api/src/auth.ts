@@ -18,6 +18,11 @@ declare global {
 
 const BOT_TOKEN = (process.env.BOT_TOKEN || "").trim();
 
+const ADMIN_TELEGRAM_IDS = (process.env.ADMIN_TELEGRAM_IDS || "")
+  .split(",")
+  .map(id => parseInt(id.trim(), 10))
+  .filter(id => !isNaN(id));
+
 function validateInitData(initData: string): TelegramUser | null {
   const params = new URLSearchParams(initData);
   const hash = params.get("hash");
@@ -85,6 +90,22 @@ export async function authMiddleware(
 
   const user = await upsertUser(tgUser);
   req.user = user;
+  next();
+}
+
+export function isAdminUser(telegramId: number): boolean {
+  return ADMIN_TELEGRAM_IDS.includes(telegramId);
+}
+
+export async function adminMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  if (!req.user || !isAdminUser(req.user.telegram_id)) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
   next();
 }
 
